@@ -1,0 +1,13 @@
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 2005584] 'autoSave'
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 log.txt
+
+E:\BaiduNetdiskDownload\typora>git push 
