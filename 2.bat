@@ -1,1 +1,1 @@
-1.bat >> log.txt
+E:\BaiduNetdiskDownload\typora\1.bat >> log.txt
