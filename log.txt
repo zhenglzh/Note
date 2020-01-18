@@ -11,3 +11,16 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  create mode 100644 log.txt
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 5313972] 'autoSave'
+ 2 files changed, 14 insertions(+)
+ create mode 100644 2.bat
+
+E:\BaiduNetdiskDownload\typora>git push 
