@@ -24,3 +24,18 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  create mode 100644 2.bat
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/01/18 ÖÜÁù11:54:27.47 
+2020/01/18 ÖÜÁù11:54:27.47
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 421e135] 'autoSave'
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+E:\BaiduNetdiskDownload\typora>git push 
