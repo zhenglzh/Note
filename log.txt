@@ -39,3 +39,35 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/01/20 周一11:51:56.39 
+2020/01/20 周一11:51:56.39
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 3367fa0] 'autoSave'
+ 19 files changed, 278 insertions(+), 6 deletions(-)
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118124452563.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118131356906.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118132256204.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118135026114.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118175853957.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118185923326.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118190124408.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118192352575.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118193256459.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118202117671.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118202119063.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118202123475.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118203324419.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118203622597.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118204635606.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200118220908384.png"
+ create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/asserts/image-20200119231025691.png"
+
+E:\BaiduNetdiskDownload\typora>git push 
