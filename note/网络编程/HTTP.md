@@ -1013,3 +1013,5 @@ Sec-WebSocket-Version：协议的版本号，当前必须是 13。
 ### 偏应用内容
 
 <img src="asserts/实际使用.png" alt="image-20200109231124385" style="zoom:50%;" />
+
+
