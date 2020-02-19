@@ -362,3 +362,18 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  create mode 100644 note/asserts/image-20200216115118977.png
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/02/18 周二11:49:55.61 
+2020/02/18 周二11:49:55.61
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 8344494] 'autoSave'
+ 2 files changed, 31 insertions(+), 3 deletions(-)
+
+E:\BaiduNetdiskDownload\typora>git push 
