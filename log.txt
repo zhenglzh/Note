@@ -437,3 +437,20 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  3 files changed, 38 insertions(+), 8 deletions(-)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/02/25 周二11:49:54.48 
+2020/02/25 周二11:49:54.48
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 6730cdf] 'autoSave'
+ 4 files changed, 20 insertions(+), 4 deletions(-)
+ create mode 100644 "note/JAVA\345\237\272\347\241\200/JVM.md"
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/zookeeper.md"
+
+E:\BaiduNetdiskDownload\typora>git push 
