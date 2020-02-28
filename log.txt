@@ -470,3 +470,19 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  rewrite "note/\344\270\255\351\227\264\344\273\266/zookeeper.md" (100%)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/02/27 周四11:49:54.73 
+2020/02/27 周四11:49:54.73
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 0f7a4c4] 'autoSave'
+ 3 files changed, 75 insertions(+), 1 deletion(-)
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/asserts/image-20200226151837676.png"
+
+E:\BaiduNetdiskDownload\typora>git push 
