@@ -579,3 +579,18 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  create mode 100644 note/Yapi.md
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/03/06 周五11:49:54.49 
+2020/03/06 周五11:49:54.49
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master d9c0651] 'autoSave'
+ 2 files changed, 75 insertions(+), 1 deletion(-)
+
+E:\BaiduNetdiskDownload\typora>git push 
