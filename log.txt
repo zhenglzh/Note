@@ -676,3 +676,18 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  create mode 100644 "note/\344\270\255\351\227\264\344\273\266/spring.md"
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/03/16 周一11:49:55.32 
+2020/03/16 周一11:49:55.32
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master a892738] 'autoSave'
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+E:\BaiduNetdiskDownload\typora>git push 
