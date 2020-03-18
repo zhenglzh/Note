@@ -691,3 +691,18 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  1 file changed, 1 insertion(+), 2 deletions(-)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/03/17 周二11:49:54.52 
+2020/03/17 周二11:49:54.52
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 3923ef0] 'autoSave'
+ 2 files changed, 16 insertions(+)
+
+E:\BaiduNetdiskDownload\typora>git push 
