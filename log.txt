@@ -831,3 +831,18 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  rewrite "note/\346\200\235\346\203\263\344\270\216\350\247\204\350\214\203/\344\273\243\347\240\201\350\247\204\350\214\203.md" (83%)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/03/27 周五11:49:54.97 
+2020/03/27 周五11:49:54.97
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master d6cc551] 'autoSave'
+ 1 file changed, 16 insertions(+)
+
+E:\BaiduNetdiskDownload\typora>git push 
