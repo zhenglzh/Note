@@ -876,3 +876,14 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  2 files changed, 32 insertions(+), 1 deletion(-)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/03/30 周一11:49:54.59 
+2020/03/30 周一11:49:54.59
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
