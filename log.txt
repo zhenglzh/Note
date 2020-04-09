@@ -963,3 +963,20 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  1 file changed, 15 insertions(+)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/04/08 周三11:49:55.55 
+2020/04/08 周三11:49:55.55
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master a1a5f53] 'autoSave'
+ 4 files changed, 16 insertions(+)
+ create mode 100644 "note/\346\200\235\346\203\263\344\270\216\350\247\204\350\214\203/xmind/\344\273\243\347\240\201\350\257\204\345\210\244\346\240\207\345\207\206.xmind"
+ create mode 100644 "note/\346\200\235\346\203\263\344\270\216\350\247\204\350\214\203/xmind/\351\235\242\345\220\221\345\257\271\350\261\241.xmind"
+
+E:\BaiduNetdiskDownload\typora>git push 
