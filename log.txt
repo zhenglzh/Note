@@ -1231,3 +1231,19 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  1 file changed, 15 insertions(+)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/04/27 周一11:49:55.70 
+2020/04/27 周一11:49:55.70
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master cb77a40] 'autoSave'
+ 2 files changed, 4 insertions(+)
+ create mode 100644 note/desktop.ini
+
+E:\BaiduNetdiskDownload\typora>git push 
