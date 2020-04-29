@@ -1247,3 +1247,18 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  create mode 100644 note/desktop.ini
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/04/28 周二11:49:55.75 
+2020/04/28 周二11:49:55.75
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 8dde8c9] 'autoSave'
+ 1 file changed, 16 insertions(+)
+
+E:\BaiduNetdiskDownload\typora>git push 
