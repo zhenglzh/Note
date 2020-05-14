@@ -1431,3 +1431,19 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  create mode 100644 "note/\347\275\221\347\273\234\347\274\226\347\250\213/xmind/\347\275\221\347\273\234\345\206\205\345\256\271.xmind"
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/05/13 周三11:49:56.04 
+2020/05/13 周三11:49:56.04
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master b35df66] 'autoSave'
+ 2 files changed, 18 insertions(+)
+ rewrite "note/\347\275\221\347\273\234\347\274\226\347\250\213/xmind/\347\275\221\347\273\234\345\206\205\345\256\271.xmind" (81%)
+
+E:\BaiduNetdiskDownload\typora>git push 
