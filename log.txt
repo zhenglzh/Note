@@ -1512,3 +1512,20 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  rewrite note/spring/xmind/Spring.xmind (90%)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/05/19 周二11:49:54.67 
+2020/05/19 周二11:49:54.67
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master e609a63] 'autoSave'
+ 3 files changed, 17 insertions(+)
+ create mode 100644 note/JVM/xmind/JVM.xmind
+ rewrite note/spring/xmind/Spring.xmind (91%)
+
+E:\BaiduNetdiskDownload\typora>git push 
