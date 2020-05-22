@@ -1544,3 +1544,19 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  1 file changed, 17 insertions(+)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/05/21 周四11:49:54.79 
+2020/05/21 周四11:49:54.79
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 1c1cadd] 'autoSave'
+ 2 files changed, 15 insertions(+)
+ create mode 100644 "note/\346\225\260\346\215\256\345\272\223/MYSQL/Xmind/MySQL.xmind"
+
+E:\BaiduNetdiskDownload\typora>git push 
