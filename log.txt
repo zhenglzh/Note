@@ -1560,3 +1560,22 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  create mode 100644 "note/\346\225\260\346\215\256\345\272\223/MYSQL/Xmind/MySQL.xmind"
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/05/22 周五11:49:54.77 
+2020/05/22 周五11:49:54.77
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 91e946b] 'autoSave'
+ 5 files changed, 74 insertions(+)
+ create mode 100644 "note/\344\270\232\345\212\241\345\212\237\350\203\275/xmind/\347\231\273\351\231\206 - \345\211\257\346\234\254.xmind"
+ create mode 100644 "note/\344\270\232\345\212\241\345\212\237\350\203\275/\345\270\270\350\247\201\345\212\237\350\203\275.md"
+ create mode 100644 "note/\346\225\260\346\215\256\345\272\223/MYSQL/Mysql.md"
+ rewrite "note/\346\225\260\346\215\256\345\272\223/MYSQL/Xmind/MySQL.xmind" (90%)
+
+E:\BaiduNetdiskDownload\typora>git push 
