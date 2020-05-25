@@ -1579,3 +1579,19 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  rewrite "note/\346\225\260\346\215\256\345\272\223/MYSQL/Xmind/MySQL.xmind" (90%)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/05/23 ÖÜÁù11:49:54.72 
+2020/05/23 ÖÜÁù11:49:54.72
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 3ca5d76] 'autoSave'
+ 3 files changed, 49 insertions(+), 4 deletions(-)
+ rewrite "note/\346\225\260\346\215\256\345\272\223/MYSQL/Xmind/MySQL.xmind" (93%)
+
+E:\BaiduNetdiskDownload\typora>git push 
