@@ -1376,7 +1376,7 @@ b.非Boolean类型
 * 开发工具中设置比如IDEA，eclipse
 * 运行jar包的时候:java  -XX:+UseG1GC xxx.jar
 * web容器比如tomcat，可以在脚本中的进行设置
-* 通过jinfo实时调整某个java进程的参数(参数只有被标记为manageable的flags可以被实时修改)
+* 通过jinfo**实时调整某个java进程的参数(参数只有被标记为manageable的flags可以被实时修改)**
 
 ### 3.1.7 实践和单位换算
 
