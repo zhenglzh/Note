@@ -1766,3 +1766,23 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  rewrite "note/\346\225\260\346\215\256\345\272\223/MYSQL/Xmind/MySQL.xmind" (73%)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/06/02 周二11:49:54.47 
+2020/06/02 周二11:49:54.47
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 4d98bfe] 'autoSave'
+ 5 files changed, 66 insertions(+)
+ rewrite note/JVM/xmind/JVM.xmind (67%)
+ create mode 100644 "note/\345\267\245\344\275\234/2020/Untitled.md"
+ create mode 100644 "note/\345\267\245\344\275\234/2020/\346\224\277\344\274\201\345\267\245\344\275\234\345\217\260/asserts/image-20200601143620443.png"
+ create mode 100644 "note/\345\267\245\344\275\234/2020/\346\224\277\344\274\201\345\267\245\344\275\234\345\217\260/asserts/image-20200601144331907.png"
+ create mode 100644 "note/\345\267\245\344\275\234/2020/\346\224\277\344\274\201\345\267\245\344\275\234\345\217\260/\345\267\245\344\275\234\346\227\245\345\277\227.md"
+
+E:\BaiduNetdiskDownload\typora>git push 
