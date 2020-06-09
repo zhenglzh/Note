@@ -1817,3 +1817,22 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  2 files changed, 16 insertions(+)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/06/08 周一11:49:54.74 
+2020/06/08 周一11:49:54.74
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 135f8f9] 'autoSave'
+ 6 files changed, 17 insertions(+)
+ delete mode 100644 note/JVM/images/16.png.baiduyun.uploading.cfg
+ delete mode 100644 note/JVM/images/17.png.baiduyun.uploading.cfg
+ delete mode 100644 note/JVM/images/18.png.baiduyun.uploading.cfg
+ create mode 100644 note/desktop.ini
+
+E:\BaiduNetdiskDownload\typora>git push 
