@@ -1836,3 +1836,20 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  create mode 100644 note/desktop.ini
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/06/09 周二11:49:54.93 
+2020/06/09 周二11:49:54.93
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master d7413c3] 'autoSave'
+ 4 files changed, 19 insertions(+)
+ create mode 100644 "note/\344\270\232\345\212\241\345\212\237\350\203\275/xmind/\350\247\243\345\206\263\346\226\271\346\241\210.xmind"
+ create mode 100644 "note/\346\225\260\346\215\256\345\272\223/Redis/Redis.xmind"
+
+E:\BaiduNetdiskDownload\typora>git push 
