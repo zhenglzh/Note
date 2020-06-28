@@ -2026,3 +2026,20 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  1 file changed, 16 insertions(+)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/06/24 周三11:49:54.92 
+2020/06/24 周三11:49:54.92
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master a552e98] 'autoSave'
+ 5 files changed, 15 insertions(+)
+ rewrite "note/\344\270\232\345\212\241\345\212\237\350\203\275/xmind/\350\247\243\345\206\263\346\226\271\346\241\210.xmind" (69%)
+ create mode 100644 "note/\346\234\215\345\212\241\345\231\250/xmind/Nginx.xmind"
+
+E:\BaiduNetdiskDownload\typora>git push 
