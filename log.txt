@@ -2043,3 +2043,18 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  create mode 100644 "note/\346\234\215\345\212\241\345\231\250/xmind/Nginx.xmind"
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/06/28 周日11:49:54.87 
+2020/06/28 周日11:49:54.87
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 2712322] 'autoSave'
+ 3 files changed, 17 insertions(+)
+
+E:\BaiduNetdiskDownload\typora>git push 
