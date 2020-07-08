@@ -2166,3 +2166,19 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  4 files changed, 16 insertions(+)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/07/07 周二11:49:54.97 
+2020/07/07 周二11:49:54.97
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master b0d281e] 'autoSave'
+ 4 files changed, 15 insertions(+)
+ create mode 100644 "note/\345\271\266\345\217\221\347\274\226\347\250\213/JDK/xmind/\345\244\232\347\272\277\347\250\213.xmind"
+
+E:\BaiduNetdiskDownload\typora>git push 
