@@ -2567,3 +2567,18 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  3 files changed, 15 insertions(+)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/08/08 ÖÜÁù11:49:57.43 
+2020/08/08 ÖÜÁù11:49:57.43
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 97d7894] 'autoSave'
+ 3 files changed, 15 insertions(+)
+
+E:\BaiduNetdiskDownload\typora>git push 
