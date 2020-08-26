@@ -2782,3 +2782,19 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  3 files changed, 15 insertions(+)
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/08/25 周二11:49:54.46 
+2020/08/25 周二11:49:54.46
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 5a26337] 'autoSave'
+ 4 files changed, 15 insertions(+)
+ rewrite "note/\350\256\255\347\273\203/\350\207\252\346\210\221\344\273\243\347\240\201\347\274\226\345\206\231.xmind" (80%)
+
+E:\BaiduNetdiskDownload\typora>git push 
