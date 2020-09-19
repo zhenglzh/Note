@@ -1,6 +1,23 @@
 ## 整体流程：
+### 服务端启动流程分析 ：
+####  创建服务端Channel
+1. 创建NioServerSocketChannel；里面包含了ServerSocketChannel，且设置为非阻塞；对应的还配置的NioServerSocketChannelConfig（设置了socket），设置了channel的id，channelPipleLine，unSafe（真正的底层传输数据内容，实例是NioMessageUnsafe）
+2. 初始化channel；把前面设置在serverBootStrap的option和attr设置到channel的config上，
+在PipleLine上增加一个handler，该handler 设置了所有子内容（在ServerbootStrap）上的。
+3. 注册Channel到Selector；在父的NioEventGroupLoop上把channel注册到selector，把**选到的NioEventLoop和channel做绑定关系**
+4. 绑定端口
+####  NioEventLoopGroup
+1. NioEventLoopGroup 的创建；默认核心数*2的线程数、包含一个executor，实例是**ThreadPerTaskExecutor**，children里面包含了n个EventExecutor（实例是NioEventLoop），创建n个NioEventLoop，里面也有executor，这个executr的实例是父group的executor进行execute的，
 
- 
+   ![image-20200918231200506](asserts/image-20200918231200506.png)
+   里面还有MPSC队列，也创建了selector。NioEventLoopGroup继续创建了选择子Loop的选择器，
+
+2. ThreadPerTaskExecutor；
+3. 向NioEventLoop 添加任务；找到channel绑定的nioeventLoop进行excute，把任务添加到MPSC中，execute会先判断当前线程是否是nioeventLoop的线程，不是开启线程（原子变量判断只能开启一次，）
+4. nioeventLoop添加任务时候startThread，执行nioeventLoop的excutor进行excute事件处理，其实真正处理的就是ThreadPerTaskExecutor进行excute，里面的runnable是一直在重复执行MPSC任务队列。
+
+
+疑问NioServerSocketChannelConfig上的socket 有什么作用，看到在设置option时候会把SO_BACKLOG、SO_RCVBUF等设置到里面去（io.netty.bootstrap.AbstractBootstrap#setChannelOption）；
 
 ### 启动流程分析 ：
 
