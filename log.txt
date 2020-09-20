@@ -3090,3 +3090,19 @@ E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave'
  create mode 100644 "note/\344\270\255\351\227\264\344\273\266/netty.md"
 
 E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/09/19 ÖÜÁù11:49:55.90 
+2020/09/19 ÖÜÁù11:49:55.90
+
+E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master c4ad6b9] 'autoSave'
+ 3 files changed, 39 insertions(+), 1 deletion(-)
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/asserts/image-20200918231200506.png"
+
+E:\BaiduNetdiskDownload\typora>git push 
