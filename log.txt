@@ -3535,3 +3535,18 @@ E:\BaiduNetdiskDownload\typora>echo 2020/10/25 周日11:49:54.82
 2020/10/25 周日11:49:54.82
 
 E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master f8486dc] 'autoSave'
+ 1 file changed, 15 insertions(+)
+
+E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/10/26 周一11:49:55.98 
+2020/10/26 周一11:49:55.98
+
+E:\BaiduNetdiskDownload\typora>git add . 
