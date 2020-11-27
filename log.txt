@@ -3878,3 +3878,19 @@ E:\BaiduNetdiskDownload\typora>echo 2020/11/26 周四11:50:01.04
 2020/11/26 周四11:50:01.04
 
 E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master bb79eca] 'autoSave'
+ 2 files changed, 56 insertions(+)
+ create mode 100644 "note/\345\267\245\344\275\234/2020/yapi\345\206\205\345\256\271/\350\277\201\347\247\273\344\270\216\351\203\250\347\275\262.md"
+
+E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/11/27 周五11:49:56.70 
+2020/11/27 周五11:49:56.70
+
+E:\BaiduNetdiskDownload\typora>git add . 
