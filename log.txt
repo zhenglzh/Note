@@ -3939,3 +3939,19 @@ E:\BaiduNetdiskDownload\typora>echo 2020/12/02 周三11:49:55.93
 2020/12/02 周三11:49:55.93
 
 E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master c3368ad] 'autoSave'
+ 2 files changed, 15 insertions(+)
+ rewrite "note/\346\200\235\346\203\263\344\270\216\350\247\204\350\214\203/xmind/\347\263\273\347\273\237\350\256\276\350\256\241.xmind" (77%)
+
+E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2020/12/03 周四11:49:55.46 
+2020/12/03 周四11:49:55.46
+
+E:\BaiduNetdiskDownload\typora>git add . 
