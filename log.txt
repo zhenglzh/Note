@@ -4648,3 +4648,19 @@ E:\BaiduNetdiskDownload\typora>echo 2021/02/22 周一11:49:55.59
 2021/02/22 周一11:49:55.59
 
 E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 01cdb5c] 'autoSave'
+ 3 files changed, 78 insertions(+)
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/kubernets.md"
+
+E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2021/02/23 周二11:49:55.74 
+2021/02/23 周二11:49:55.74
+
+E:\BaiduNetdiskDownload\typora>git add . 

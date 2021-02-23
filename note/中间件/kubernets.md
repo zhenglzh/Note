@@ -53,4 +53,13 @@ kubectl delete ns custom-namespace
 kubectl delete po [-l] kubia
 19. 删除命名空间中几乎所有的资源
 kubectl delete all --all
-
+20. 查看前一次容器的日志（一般用于容器重新创建）
+kubectl logs mypod --previous
+21. 编辑yaml模板内容
+kubectl edit rc kubia
+22. 删除rc但是不删除pod
+kubectl delete rc kubia --cascade=false
+23. 进入pod执行命令
+kubectl exec kubia-9ml2v  -- curl -s http://10.96.138.237
+24. 进入容器的内部
+kubectl exec -it kubia-jnxzb  bash
