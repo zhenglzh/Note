@@ -4694,3 +4694,18 @@ E:\BaiduNetdiskDownload\typora>echo 2021/02/25 周四11:49:58.42
 2021/02/25 周四11:49:58.42
 
 E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 34f195e] 'autoSave'
+ 2 files changed, 33 insertions(+), 8 deletions(-)
+
+E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2021/02/26 周五11:49:55.37 
+2021/02/26 周五11:49:55.37
+
+E:\BaiduNetdiskDownload\typora>git add . 
