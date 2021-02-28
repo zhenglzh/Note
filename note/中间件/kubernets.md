@@ -91,3 +91,5 @@ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
     能够发现集群的pod准确ip
 27. 获取所有的命名空间下的pod
    kubectl get pod --all-namespaces
+   -n kube-system
+28. -o yaml模式
