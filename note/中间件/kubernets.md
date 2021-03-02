@@ -25,16 +25,16 @@ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
 5. kubectl scale rc kubia --replicas=3
 
 6. 查看pod的ip和对应的node
-  kubectl get pods -o wide
+    kubectl get pods -o wide
 
 7. 查看pod 的yaml文件
-  kubectl get po kubia-j6pqv -o yaml
+    kubectl get po kubia-j6pqv -o yaml
 
 8. 查看pods的定义
-  kubectl explain pods 
+    kubectl explain pods 
 
 9. 创建pod
-  kubectl create -f kubia-manual.yaml
+    kubectl create -f kubia-manual.yaml
 
 10. 看日志
     kubectl logs kubia-manual -c 【容器】
@@ -62,8 +62,6 @@ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
     kubectl get ns
     kubectl get po --namespace kube-system
 
-18. 
-
 19. 删除pod
     kubectl delete ns custom-namespace
     kubectl delete po [-l] kubia
@@ -90,6 +88,6 @@ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
 
     能够发现集群的pod准确ip
 27. 获取所有的命名空间下的pod
-   kubectl get pod --all-namespaces
-   -n kube-system
+      kubectl get pod --all-namespaces
+      -n kube-system
 28. -o yaml模式
