@@ -4788,3 +4788,19 @@ E:\BaiduNetdiskDownload\typora>echo 2021/03/03 周三11:49:54.70
 2021/03/03 周三11:49:54.70
 
 E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 9b4cc50] 'autoSave'
+ 2 files changed, 17 insertions(+)
+ rewrite "note/\344\270\255\351\227\264\344\273\266/xmind/\345\261\261\344\270\234\346\224\277\344\274\201\347\274\226\350\257\221.xmind" (94%)
+
+E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2021/03/04 周四11:49:55.79 
+2021/03/04 周四11:49:55.79
+
+E:\BaiduNetdiskDownload\typora>git add . 
