@@ -87,7 +87,19 @@ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
 26. headless和stafulset的结合作用
 
     能够发现集群的pod准确ip
+    
 27. 获取所有的命名空间下的pod
-      kubectl get pod --all-namespaces
+      kubectl get pod --all-namespaces【 kubectl get pod -A】
       -n kube-system
-28. -o yaml模式
+    
+27. -o yaml模式
+
+28. 创建configmaping命令
+
+     kubectl create configmap fortune-config --from-literal=sleep-interval=25 --from-literal=sleepl=sleep
+
+     --from-file=（文件夹或者文件）
+
+     
+
+     
