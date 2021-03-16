@@ -103,7 +103,7 @@ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
 
 	kubectl create -f *.yaml 创建一个资源
 	kubectl replace -f *.yaml 替换一个资源
-	kubectl apply -f *.yaml 替换一个资源
+	kubectl apply -f *.yaml 如果没有则创建，如果有则替换
 	kubectl edit 
 	kubectl los -f pod
 	kubectl create deployment nginx --image=nginx:1.15.2
