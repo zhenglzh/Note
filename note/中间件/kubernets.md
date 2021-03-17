@@ -205,11 +205,46 @@ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
 	- Ondelete  删除时候才更新 ，可以用于灰度更新
 #### DaemonSet
 
+1. 和nodeselector来配合使用
+
+#### label内容
+1. 可以给任务资源打上标签 kubectl label node k8s-node01 nginx=v2
+2. 删除标签 kubectl label node  k8s-node01 nginx--
+3. 覆盖标签 kubectl label node  k8s-node01 nginx=v3 --overwrite
+4. 给pod选择对应的资源 nodeSelector nginx: v3   spec节点同级。
+
+#### sevice内容
+1. 创建一个service内部，selector port 自己暴漏的和targetpod
+2. 注意观察service 的ep内容， 以及ipvsadmin 和route 的内容了解他怎么转发的
+3. 使用Service代理k8s外部应用 ，不用selector 然后在自己创建ep来进行映射 name和labels要对应上，在进行替换
+4. service的类型
+	- ClusterIP：在集群内部使用，也是默认值。
+	
+   - ExternalName：通过返回定义的CNAME别名。
+   
+    - NodePort：在所有安装了kube-proxy的节点上打开一个端口，此端口可以代理至后端Pod，然后集群外部可以使用节点的IP地址和NodePort的端口号访问到集群Pod的服务。NodePort端口范围默认是30000-32767。指定一个NodePort，NodePort的效率比较慢
+   
+    - LoadBalancer：使用云提供商的负载均衡器公开服务。
+   
+#### ingress内容
+
+#### HPA 
+Horizontal Pod Autoscaler：Pod的水平自动伸缩器。
+	观察Pod的CPU、内存使用率自动扩展或缩容Pod的数量。
+	不适用于无法缩放的对象，比如DaemonSet。
+    支持CPU、内存（少用，内存大扩容也没用）跟request来进行比较
+	自定义指标的扩缩容（业务暴漏接口来进行扩容弄个）。
+要求必须定义 Requests参数，必须安装metrics-server。
+kubectl get hpa
+kubectl autoscale deploy nginx  --cpu-percent=20 --min=3  --max=5
+
+while true; do wget -q -o- http:// > /dev/null ; done
+
 ### 常见问题
 #### 网络方面
 1. 网络具体如何通信，如何查看
 查看ipvs的转发规则（linux 命令）
 	nestat -lntp
 	ipvsadmin -ln  配置了服务到pod 的转发内容
-	route -n    配置服务到具体物理机的路由关系
+	route -n    配置pod到到具体物理机的路由关系
 	vim set paste的作用
