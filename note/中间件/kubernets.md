@@ -209,7 +209,7 @@ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
 
 #### label内容
 1. 可以给任务资源打上标签 kubectl label node k8s-node01 nginx=v2
-2. 删除标签 kubectl label node  k8s-node01 nginx--
+2. 删除标签 kubectl label node  k8s-node01 nginx-
 3. 覆盖标签 kubectl label node  k8s-node01 nginx=v3 --overwrite
 4. 给pod选择对应的资源 nodeSelector nginx: v3   spec节点同级。
 
@@ -227,6 +227,9 @@ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
     - LoadBalancer：使用云提供商的负载均衡器公开服务。
    
 #### ingress内容
+
+1. 用helm来创建一个ingress修改里面的配置
+2. 需要rewrite和不需要rewrite的要分开下。
 
 #### HPA 
 Horizontal Pod Autoscaler：Pod的水平自动伸缩器。
