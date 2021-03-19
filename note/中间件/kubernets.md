@@ -229,9 +229,21 @@ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
 #### ingress内容
 
 1. 用helm来创建一个ingress修改里面的配置
-2. 需要rewrite和不需要rewrite的要分开下。
 
-#### HPA 
+2. 需要rewrite和不需要rewrite的要分开下
+
+3. ingress最好使用hostNetWork的方式，这样在主机上直接暴露这个端口，不用使用kubectl-proxy进行代理，效率会高
+
+4. 要利用好logs命令 kubectl log pod 2222 
+
+   ![image-20210319000528138](asserts/image-20210319000528138.png)
+
+   ![image-20210319000901190](asserts/image-20210319000901190.png)
+
+![image-20210319000922598](asserts/image-20210319000922598.png)
+
+![image-20210319001425447](asserts/image-20210319001425447.png)
+
 Horizontal Pod Autoscaler：Pod的水平自动伸缩器。
 	观察Pod的CPU、内存使用率自动扩展或缩容Pod的数量。
 	不适用于无法缩放的对象，比如DaemonSet。
