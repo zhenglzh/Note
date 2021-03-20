@@ -64,3 +64,12 @@
 14.prepare阶段,将事务的xid写入，将binlog_cache里的进行flush以及sync操作(大事务的话这步非常耗时)
 15.commit阶段，由于之前该事务产生的redo log已经sync到磁盘了。所以这步只是在redo log里标记commit
 16.当binlog和redo log都已经落盘以后，如果触发了刷新脏页的操作，先把该脏页复制到doublewrite buffer里，把doublewrite buffer里的刷新到共享表空间，然后才是通过page cleaner线程把脏页写入到磁盘中
+
+
+## 常用数据查询脚本
+1. 查询所有客户订购的单子内容
+SELECT cust_name, cust_state,
+(SELECT COUNT(*) FROM orders WHERE orders.cust_id=customers.cust_id)
+AS orders1
+FROM customers 
+2. 
