@@ -228,6 +228,8 @@ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
    
 #### ingress内容
 
+是否有区分命名空间：有
+
 1. 用helm来创建一个ingress修改里面的配置
 
 2. 需要rewrite和不需要rewrite的要分开下
@@ -244,10 +246,10 @@ kubectl expose rc kubia --type=LoadBalancer --name kubia-http
 
 ![image-20210319001425447](asserts/image-20210319001425447.png)
 
-Horizontal Pod Autoscaler：Pod的水平自动伸缩器。
+####  Horizontal Pod Autoscaler：Pod的水平自动伸缩器。
 	观察Pod的CPU、内存使用率自动扩展或缩容Pod的数量。
 	不适用于无法缩放的对象，比如DaemonSet。
-    支持CPU、内存（少用，内存大扩容也没用）跟request来进行比较
+	支持CPU、内存（少用，内存大扩容也没用）跟request来进行比较
 	自定义指标的扩缩容（业务暴漏接口来进行扩容弄个）。
 要求必须定义 Requests参数，必须安装metrics-server。
 kubectl get hpa
@@ -255,11 +257,225 @@ kubectl autoscale deploy nginx  --cpu-percent=20 --min=3  --max=5
 
 while true; do wget -q -o- http:// > /dev/null ; done
 
+### ConfigMap
+允许你将配置文件与镜像文件分离，以使容器化的应用程序具有可移植性，也有命名空间
+#### 基于目录创建 ConfigMap 
+kubectl 识别目录下基本名可以作为合法键名的 文件，并将这些文件打包到新的 ConfigMap 中。普通文件之外的所有目录项都会被 忽略（例如，子目录、符号链接、设备、管道等等）。
+kubectl create configmap game-config --from-file=configure-pod-container/configmap/
+#### 基于文件创建 ConfigMap 
+kubectl create configmap game-config-2 --from-file=configure-pod-container/configmap/game.properties
+#### 选项从环境文件创建 ConfigMap
+    Env 文件中的每一行必须为 VAR=VAL 格式。
+    以＃开头的行（即注释）将被忽略。
+    空行将被忽略。
+    引号不会被特殊处理（即它们将成为 ConfigMap 值的一部分）。
+kubectl create configmap game-config-env-file \
+       --from-env-file=configure-pod-container/configmap/game-env-file.properties
+
+#### 自定义key创建configMap
+kubectl create configmap game-config-3 --from-file=<my-key-name>=<path-to-file>
+#### 容器和configMap的使用
+1. 单个 ConfigMap 中的数据定义容器环境变量
+
+```yaml
+      env:
+        # Define the environment variable
+        - name: SPECIAL_LEVEL_KEY
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: special-config
+              # Specify the key associated with the value
+              key: special.how
+```
+
+2. ConfigMap 中的所有键值对配置为容器环境变量
+
+   ```yaml
+   spec:
+     containers:
+       - name: test-container
+         image: k8s.gcr.io/busybox
+         command: [ "/bin/sh", "-c", "env" ]
+         envFrom:
+         - configMapRef:
+             name: special-config
+     restartPolicy: Never
+   ```
+
+3. POD命令中使用环境变量
+
+   ```yaml
+     containers:
+       - name: test-container
+         image: k8s.gcr.io/busybox
+         command: [ "/bin/sh", "-c", "echo $(SPECIAL_LEVEL_KEY) $(SPECIAL_TYPE_KEY)" ]
+         env:
+           - name: SPECIAL_LEVEL_KEY
+             valueFrom:
+               configMapKeyRef:
+                 name: special-config
+                 key: SPECIAL_LEVEL
+           - name: SPECIAL_TYPE_KEY
+             valueFrom:
+               configMapKeyRef:
+                 name: special-config
+                 key: SPECIAL_TYPE
+     restartPolicy: Never
+   ```
+
+4. 将 ConfigMap 数据添加到一个卷中
+
+   ```yaml
+   apiVersion: v1
+   kind: Pod
+   metadata:
+     name: dapi-test-pod
+   spec:
+     containers:
+       - name: test-container
+         image: k8s.gcr.io/busybox
+         command: [ "/bin/sh", "-c", "ls /etc/config/" ]
+         volumeMounts:
+         - name: config-volume
+           mountPath: /etc/config
+     volumes:
+       - name: config-volume
+         configMap:
+           # Provide the name of the ConfigMap containing the files you want
+           # to add to the container
+           name: special-config
+     restartPolicy: Never
+   ```
+
+展示出来的在目录上就是一个个文件里面包含了内容
+
+5. 将 ConfigMap 数据特定文件添加到数据卷中的特定路径
+
+   ```yaml
+   apiVersion: v1
+   kind: Pod
+   metadata:
+     name: dapi-test-pod
+   spec:
+     containers:
+       - name: test-container
+         image: k8s.gcr.io/busybox
+         command: [ "/bin/sh","-c","cat /etc/config/keys" ]
+         volumeMounts:
+         - name: config-volume
+           mountPath: /etc/config
+     volumes:
+       - name: config-volume
+         configMap:
+           name: special-config
+           items:
+           - key: SPECIAL_LEVEL
+             path: keys
+     restartPolicy: Never
+   ```
+
+6. 将 ConfigMap 数据特定文件添加到数据卷中的特定文件（只挂载一个）
+
+   ​    volumeMounts:
+
+   ​    \- name: nginx-config-volume
+
+   ​     mountPath: /etc/nginx/nginx.conf
+
+   ​     subPath: etc/nginx/nginx.conf
+
+      volumes:
+
+   ​    \- name: nginx-config-volume
+
+   ​     configMap:
+
+   ​      name: nginx-conf
+
+   ​      items:
+
+   ​      \- key: nginx.conf
+
+   ​       path: etc/nginx/nginx.conf
+
+### Secret
+
+#### 创建secret
+
+请注意，特殊字符（例如：`$`，`\`，`*`，`=` 和 `!`）由你的 [shell](https://en.wikipedia.org/wiki/Shell_(computing)) 解释执行，而且需要转义。 在大多数 shell 中，转义密码最简便的方法是用单引号括起来。
+
+```shell
+kubectl create secret generic dev-db-secret \
+  --from-literal=username=devuser \
+  --from-literal=password='S!B\*d$zDsb='
+```
+
+```shell
+kubectl create secret generic db-user-pass --from-file=./username.txt 
+```
+
+用describe不会显示具体的内容需要-oyaml才会显示
+
+kubectl get secret db-user-pass -oyaml
+
+解码操作echo 'MWYyZDFlMmU2N2Rm' | base64 --decode
+
+#### 环境变量引用secret
+
+```yaml
+spec:
+  containers:
+  - name: envars-test-container
+    image: nginx
+    env:
+    - name: SECRET_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: backend-user
+          key: backend-username
+```
+
+#### 挂载volume
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: nginx
+      volumeMounts:
+        # name must match the volume name below
+        - name: secret-volume
+          mountPath: /etc/secret-volume
+  # The secret data is exposed to Containers in the Pod through a Volume.
+  volumes:
+    - name: secret-volume
+      secret:
+        secretName: test-secret
+```
+
+
+
+### 热更新configmap和secret
+
+热更新ConfigMap或Secret：
+[root@k8s-master01 ~]# kubectl create cm nginx-conf --from-file=nginx.conf --dry-run -oyaml  | kubectl replace -f-
+
 ### 常见问题
-#### 网络方面
+
 1. 网络具体如何通信，如何查看
 查看ipvs的转发规则（linux 命令）
-	nestat -lntp
+	nestat -lntp 学会看显示内容的含义
 	ipvsadmin -ln  配置了服务到pod 的转发内容
 	route -n    配置pod到到具体物理机的路由关系
 	vim set paste的作用
+2. pod的生命周期内容
+Kubernetes 在容器创建后立即发送 postStart 事件。 然而，postStart 处理函数的调用**不保证早于**容器的入口点（entrypoint） 的执行。postStart 处理函数与容器的代码是异步执行的，但 Kubernetes 的容器管理逻辑会一直阻塞等待 postStart 处理函数执行完毕。 只有 postStart 处理函数执行完毕，容器的状态才会变成 RUNNING。
+
+3. 提示启动命令异常的一定要按照规范编写
+
+   https://blog.csdn.net/qq_33448670/article/details/80004950
