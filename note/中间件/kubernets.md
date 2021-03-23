@@ -458,12 +458,23 @@ spec:
         secretName: test-secret
 ```
 
-
-
 ### 热更新configmap和secret
 
 热更新ConfigMap或Secret：
 [root@k8s-master01 ~]# kubectl create cm nginx-conf --from-file=nginx.conf --dry-run -oyaml  | kubectl replace -f-
+
+subpath的内容无法被更新上
+
+### Volumes处理
+用于共享数据，和持久化存储的内容
+#### emptyDir Volumes
+容器摧毁后就没有了 用于两个容器间共享数据，还有像fileBeat这种来收集日志处理
+#### HostPath
+把节点上的文件目录挂载到pod上。
+#### Nfs
+df -Th
+生产上不建议使用，不是高可靠建议使用nas平台兼容nfs挂载数据共享
+#### PV方式
 
 ### 常见问题
 
@@ -473,9 +484,12 @@ spec:
 	ipvsadmin -ln  配置了服务到pod 的转发内容
 	route -n    配置pod到到具体物理机的路由关系
 	vim set paste的作用
+	
 2. pod的生命周期内容
 Kubernetes 在容器创建后立即发送 postStart 事件。 然而，postStart 处理函数的调用**不保证早于**容器的入口点（entrypoint） 的执行。postStart 处理函数与容器的代码是异步执行的，但 Kubernetes 的容器管理逻辑会一直阻塞等待 postStart 处理函数执行完毕。 只有 postStart 处理函数执行完毕，容器的状态才会变成 RUNNING。
 
 3. 提示启动命令异常的一定要按照规范编写
 
-   https://blog.csdn.net/qq_33448670/article/details/80004950
+   https://blog.csdn.net/qq_33448670/article/details/80004950 
+4. 同一个pod 里面挂多个容器时候不能用相同的端口
+5. 当 出现 一般就是命令问题，命令要使用 sh -c 这种方式处理

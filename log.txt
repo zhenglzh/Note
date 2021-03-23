@@ -5094,3 +5094,19 @@ E:\BaiduNetdiskDownload\typora>echo 2021/03/22 周一11:49:55.07
 2021/03/22 周一11:49:55.07
 
 E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 665cdf0] 'autoSave'
+ 4 files changed, 267 insertions(+), 12 deletions(-)
+ create mode 100644 "note/\346\225\260\346\215\256\345\272\223/Redis/asserts/image-20210321120101934.png"
+
+E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2021/03/23 周二11:49:55.03 
+2021/03/23 周二11:49:55.03
+
+E:\BaiduNetdiskDownload\typora>git add . 
