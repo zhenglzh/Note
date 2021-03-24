@@ -472,9 +472,18 @@ subpath的内容无法被更新上
 #### HostPath
 把节点上的文件目录挂载到pod上。
 #### Nfs
-df -Th
+df -Th 查看磁盘挂载内容
 生产上不建议使用，不是高可靠建议使用nas平台兼容nfs挂载数据共享
+
 #### PV方式
+
+kubectl get pv,pvc
+
+### 高级调度使用
+
+cronjob 对于高时间要求的 注意拉取镜像需要时间，使用的是controller-manager时间，如果在容器里面要保证容器的时间一致。名字不能超过52个字符
+
+
 
 ### 常见问题
 

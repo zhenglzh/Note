@@ -5110,3 +5110,19 @@ E:\BaiduNetdiskDownload\typora>echo 2021/03/23 周二11:49:55.03
 2021/03/23 周二11:49:55.03
 
 E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master eef8f2a] 'autoSave'
+ 3 files changed, 44 insertions(+), 6 deletions(-)
+ rewrite "note/JAVA\345\237\272\347\241\200/JAVA\345\237\272\347\241\200.md" (65%)
+
+E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2021/03/24 周三11:49:55.53 
+2021/03/24 周三11:49:55.53
+
+E:\BaiduNetdiskDownload\typora>git add . 
