@@ -480,8 +480,19 @@ df -Th 查看磁盘挂载内容
 kubectl get pv,pvc
 
 ### 高级调度使用
-
+#### cronjob
 cronjob 对于高时间要求的 注意拉取镜像需要时间，使用的是controller-manager时间，如果在容器里面要保证容器的时间一致。名字不能超过52个字符
+部分内容说明
+concurrencyPolicy：是否允许并发调度执行，Allow（如果上个任务还没执行完成，时间到了开始一个新的任务）、Forbid（等待沙工任务执行完成）、replace（替换上一个任务）
+suspend（是否挂起）
+#### 容忍和污点
+和label有点类型比label强大，可以符合和不符合都处理，当节点上有污点时候，允许pod能容忍的 时间，经常比如说节点挂了，集群会给节点打上污点，pod允许容忍多少分钟在这个节点上。
+节点不正常，磁盘不够等等 
+#### initContainer内容
+比post好用，post不一定在entry前执行完成，initcontainer保证。我们知道一个Pod里面的所有容器是共享数据卷和网络命名空间的，所以Init Container里面产生的数据可以被主容器使用到的，按照顺序完成init container的内容完成后退出继续后面的init
+
+#### Affinity亲和力
+包含了nodeselector所有功能，更强大。
 
 
 
@@ -500,5 +511,13 @@ Kubernetes 在容器创建后立即发送 postStart 事件。 然而，postStart
 3. 提示启动命令异常的一定要按照规范编写
 
    https://blog.csdn.net/qq_33448670/article/details/80004950 
+   
 4. 同一个pod 里面挂多个容器时候不能用相同的端口
+
 5. 当 出现 一般就是命令问题，命令要使用 sh -c 这种方式处理
+
+6. pod的一个生命周期图
+
+   ![image-20210324234630935](asserts/image-20210324234630935.png)
+
+![image-20210324235356833](asserts/image-20210324235356833.png)
