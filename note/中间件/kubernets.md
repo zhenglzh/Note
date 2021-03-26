@@ -492,7 +492,14 @@ suspend（是否挂起）
 比post好用，post不一定在entry前执行完成，initcontainer保证。我们知道一个Pod里面的所有容器是共享数据卷和网络命名空间的，所以Init Container里面产生的数据可以被主容器使用到的，按照顺序完成init container的内容完成后退出继续后面的init
 
 #### Affinity亲和力
-包含了nodeselector所有功能，更强大。
+包含了nodeselector所有功能，还有容器亲和力更强大。
+
+nodeselector和亲和力都配置的话,要求都要满足才行.  
+
+ 部署在同一个拓扑域（节点上label的标签算是一个拓扑域，因为各个的值不同又是各个的拓扑域），算法比较耗资源 按需来配置
+
+#### RBAC内容
+
 
 
 

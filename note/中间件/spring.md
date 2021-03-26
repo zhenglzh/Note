@@ -8,6 +8,25 @@
 
 
 
+#### 一个请求的流程走向
+1. org.apache.catalina.core.StandardWrapperValve#invoke
+    创建了filterChain和servlet,当filter有错误时候,开始抛出异常然后重新构造了一个error请求再次走一次内容
+   org.apache.catalina.core.ApplicationFilterChain#doFilter开始过滤器的处理,
+    ![img](asserts/QMT`KYSO45C`1BXQCP@H`BG.png)
+    过滤器的处理逻辑大概如下,ApplicationFilterChain在每个类中存在,每个类调用doFilter,又会回到ApplicationFilterChain里面有调用具体的fitler方法.因此ApplicationFilterChain要控制好指针.
+    filter抛出异常后会catch同时设置异常的相关信息
+    org.apache.catalina.core.StandardHostValve#status会异常判断是否在往error页面进行请求.
+    org.apache.catalina.util.ErrorPageSupport里面存储了状态码和页面的映射内容,何时注册?
+  ```
+  org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory#configureContext进行了注册
+org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration.ErrorPageCustomizer#registerErrorPages
+可以根据不同的状态码注册,不同的异常注册,
+  ```
+
+  org.apache.catalina.core.StandardHostValve#custom做真正的二次转发地址内容又进行一次过滤器和servlet内容
+
+#### filter的顺序处理
+
 
 ## 常见问题:
 1. BeanFactory 和 ApplicationContext 的不同点
