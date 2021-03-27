@@ -1895,6 +1895,11 @@ Throughput       Min Pause       Max Pause      Avg Pause       GC count
 
     分别表示用户态耗时，内核态耗时和总耗时
 
+FULLGC日志：
+
+2021-03-25T23:51:09.637+0800: 9.856: [Full GC (System.gc()) 2021-03-25T23:51:09.637+0800: 9.856: [CMS: 60327K->199209K(3713728K), 0.6505777 secs] 1392739K->199209K(5384896K), [Metaspace: 51987K->51987K(571392K)], 0.6513674 secs] [Times: user=0.59 sys=0.08, real=0.65 secs] 
+
+
 
 ## 4.5常见问题
 

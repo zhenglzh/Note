@@ -491,6 +491,7 @@ suspend（是否挂起）
 #### initContainer内容
 比post好用，post不一定在entry前执行完成，initcontainer保证。我们知道一个Pod里面的所有容器是共享数据卷和网络命名空间的，所以Init Container里面产生的数据可以被主容器使用到的，按照顺序完成init container的内容完成后退出继续后面的init
 
+initContainer添加内核配置？
 #### Affinity亲和力
 包含了nodeselector所有功能，还有容器亲和力更强大。
 
@@ -501,7 +502,9 @@ nodeselector和亲和力都配置的话,要求都要满足才行.
 #### RBAC内容
 
 
-
+#### 临时容器
+看下功能是否已经开启 kubectl -h | grep
+在线上的pod注入一个容器要求打开共享的空间登内容
 
 ### 常见问题
 
