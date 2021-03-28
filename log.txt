@@ -5176,3 +5176,20 @@ E:\BaiduNetdiskDownload\typora>echo 2021/03/27 周六11:49:55.03
 2021/03/27 周六11:49:55.03
 
 E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 2fb21b7] 'autoSave'
+ 5 files changed, 38 insertions(+), 1 deletion(-)
+ rename "note/JAVA\345\237\272\347\241\200/JVM.md" => note/JVM/JVM.md (100%)
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/spring-ioc.md"
+
+E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2021/03/28 周日11:49:56.03 
+2021/03/28 周日11:49:56.03
+
+E:\BaiduNetdiskDownload\typora>git add . 
