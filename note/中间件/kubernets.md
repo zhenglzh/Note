@@ -472,12 +472,21 @@ subpath的内容无法被更新上
 #### HostPath
 把节点上的文件目录挂载到pod上。
 #### Nfs
+
+yum install nfs-utils -y
+
 df -Th 查看磁盘挂载内容
 生产上不建议使用，不是高可靠建议使用nas平台兼容nfs挂载数据共享
 
 #### PV方式
 
 kubectl get pv,pvc
+
+PV是没有命名空间的 PVC有命名空间
+
+storageclass和accessMode要相同
+
+pv和pvc也有标签，可以storageclass一样通过标签来匹配。
 
 ### 高级调度使用
 #### cronjob
