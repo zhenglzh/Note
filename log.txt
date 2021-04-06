@@ -5289,3 +5289,140 @@ E:\BaiduNetdiskDownload\typora>echo 2021/04/02 周五11:49:55.55
 2021/04/02 周五11:49:55.55
 
 E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 331ee3f] 'autoSave'
+ 123 files changed, 379 insertions(+), 2 deletions(-)
+ rename "note/JVM/Carl\347\232\204\347\254\224\350\256\260.md" => "note/JAVA\345\237\272\347\241\200/JVM/Carl\347\232\204\347\254\224\350\256\260.md" (100%)
+ rename note/JVM/JVM.md => "note/JAVA\345\237\272\347\241\200/JVM/JVM.md" (100%)
+ rename note/JVM/images/01.png => "note/JAVA\345\237\272\347\241\200/JVM/images/01.png" (100%)
+ rename note/JVM/images/02.png => "note/JAVA\345\237\272\347\241\200/JVM/images/02.png" (100%)
+ rename note/JVM/images/03.png => "note/JAVA\345\237\272\347\241\200/JVM/images/03.png" (100%)
+ rename note/JVM/images/04.png => "note/JAVA\345\237\272\347\241\200/JVM/images/04.png" (100%)
+ rename note/JVM/images/05.png => "note/JAVA\345\237\272\347\241\200/JVM/images/05.png" (100%)
+ rename note/JVM/images/06.png => "note/JAVA\345\237\272\347\241\200/JVM/images/06.png" (100%)
+ rename note/JVM/images/07.png => "note/JAVA\345\237\272\347\241\200/JVM/images/07.png" (100%)
+ rename note/JVM/images/08.png => "note/JAVA\345\237\272\347\241\200/JVM/images/08.png" (100%)
+ rename note/JVM/images/09.png => "note/JAVA\345\237\272\347\241\200/JVM/images/09.png" (100%)
+ rename note/JVM/images/10.png => "note/JAVA\345\237\272\347\241\200/JVM/images/10.png" (100%)
+ rename note/JVM/images/11.png => "note/JAVA\345\237\272\347\241\200/JVM/images/11.png" (100%)
+ rename note/JVM/images/12.png => "note/JAVA\345\237\272\347\241\200/JVM/images/12.png" (100%)
+ rename note/JVM/images/13.png => "note/JAVA\345\237\272\347\241\200/JVM/images/13.png" (100%)
+ rename note/JVM/images/14.png => "note/JAVA\345\237\272\347\241\200/JVM/images/14.png" (100%)
+ rename note/JVM/images/15.png => "note/JAVA\345\237\272\347\241\200/JVM/images/15.png" (100%)
+ rename note/JVM/images/16.png => "note/JAVA\345\237\272\347\241\200/JVM/images/16.png" (100%)
+ rename note/JVM/images/17.png => "note/JAVA\345\237\272\347\241\200/JVM/images/17.png" (100%)
+ rename note/JVM/images/18.png => "note/JAVA\345\237\272\347\241\200/JVM/images/18.png" (100%)
+ rename note/JVM/images/19.png => "note/JAVA\345\237\272\347\241\200/JVM/images/19.png" (100%)
+ rename note/JVM/images/20.png => "note/JAVA\345\237\272\347\241\200/JVM/images/20.png" (100%)
+ rename note/JVM/images/21.png => "note/JAVA\345\237\272\347\241\200/JVM/images/21.png" (100%)
+ rename note/JVM/images/22.png => "note/JAVA\345\237\272\347\241\200/JVM/images/22.png" (100%)
+ rename note/JVM/images/23.png => "note/JAVA\345\237\272\347\241\200/JVM/images/23.png" (100%)
+ rename note/JVM/images/24.png => "note/JAVA\345\237\272\347\241\200/JVM/images/24.png" (100%)
+ rename note/JVM/images/25.png => "note/JAVA\345\237\272\347\241\200/JVM/images/25.png" (100%)
+ rename note/JVM/images/26.png => "note/JAVA\345\237\272\347\241\200/JVM/images/26.png" (100%)
+ rename note/JVM/images/27.png => "note/JAVA\345\237\272\347\241\200/JVM/images/27.png" (100%)
+ rename note/JVM/images/28.png => "note/JAVA\345\237\272\347\241\200/JVM/images/28.png" (100%)
+ rename note/JVM/images/29.png => "note/JAVA\345\237\272\347\241\200/JVM/images/29.png" (100%)
+ rename note/JVM/images/30.png => "note/JAVA\345\237\272\347\241\200/JVM/images/30.png" (100%)
+ rename note/JVM/images/31.png => "note/JAVA\345\237\272\347\241\200/JVM/images/31.png" (100%)
+ rename note/JVM/images/32.png => "note/JAVA\345\237\272\347\241\200/JVM/images/32.png" (100%)
+ rename note/JVM/images/33.png => "note/JAVA\345\237\272\347\241\200/JVM/images/33.png" (100%)
+ rename note/JVM/images/34.png => "note/JAVA\345\237\272\347\241\200/JVM/images/34.png" (100%)
+ rename note/JVM/images/35.png => "note/JAVA\345\237\272\347\241\200/JVM/images/35.png" (100%)
+ rename note/JVM/images/36.png => "note/JAVA\345\237\272\347\241\200/JVM/images/36.png" (100%)
+ rename note/JVM/images/37.png => "note/JAVA\345\237\272\347\241\200/JVM/images/37.png" (100%)
+ rename note/JVM/images/38.png => "note/JAVA\345\237\272\347\241\200/JVM/images/38.png" (100%)
+ rename note/JVM/images/39.png => "note/JAVA\345\237\272\347\241\200/JVM/images/39.png" (100%)
+ rename note/JVM/images/40.png => "note/JAVA\345\237\272\347\241\200/JVM/images/40.png" (100%)
+ rename note/JVM/images/41.png => "note/JAVA\345\237\272\347\241\200/JVM/images/41.png" (100%)
+ rename note/JVM/images/42.png => "note/JAVA\345\237\272\347\241\200/JVM/images/42.png" (100%)
+ rename note/JVM/images/43.png => "note/JAVA\345\237\272\347\241\200/JVM/images/43.png" (100%)
+ rename note/JVM/images/44.png => "note/JAVA\345\237\272\347\241\200/JVM/images/44.png" (100%)
+ rename note/JVM/images/45.png => "note/JAVA\345\237\272\347\241\200/JVM/images/45.png" (100%)
+ rename note/JVM/images/46.png => "note/JAVA\345\237\272\347\241\200/JVM/images/46.png" (100%)
+ rename note/JVM/images/47.png => "note/JAVA\345\237\272\347\241\200/JVM/images/47.png" (100%)
+ rename note/JVM/images/48.png => "note/JAVA\345\237\272\347\241\200/JVM/images/48.png" (100%)
+ rename note/JVM/images/49.png => "note/JAVA\345\237\272\347\241\200/JVM/images/49.png" (100%)
+ rename note/JVM/images/50.png => "note/JAVA\345\237\272\347\241\200/JVM/images/50.png" (100%)
+ rename note/JVM/images/51.png => "note/JAVA\345\237\272\347\241\200/JVM/images/51.png" (100%)
+ rename note/JVM/images/52.png => "note/JAVA\345\237\272\347\241\200/JVM/images/52.png" (100%)
+ rename note/JVM/images/53.png => "note/JAVA\345\237\272\347\241\200/JVM/images/53.png" (100%)
+ rename note/JVM/images/54.png => "note/JAVA\345\237\272\347\241\200/JVM/images/54.png" (100%)
+ rename note/JVM/images/55.png => "note/JAVA\345\237\272\347\241\200/JVM/images/55.png" (100%)
+ rename note/JVM/images/56.png => "note/JAVA\345\237\272\347\241\200/JVM/images/56.png" (100%)
+ rename note/JVM/images/57.png => "note/JAVA\345\237\272\347\241\200/JVM/images/57.png" (100%)
+ rename note/JVM/images/58.png => "note/JAVA\345\237\272\347\241\200/JVM/images/58.png" (100%)
+ rename note/JVM/images/59.png => "note/JAVA\345\237\272\347\241\200/JVM/images/59.png" (100%)
+ rename note/JVM/images/60.png => "note/JAVA\345\237\272\347\241\200/JVM/images/60.png" (100%)
+ rename note/JVM/images/61.png => "note/JAVA\345\237\272\347\241\200/JVM/images/61.png" (100%)
+ rename note/JVM/images/62.png => "note/JAVA\345\237\272\347\241\200/JVM/images/62.png" (100%)
+ rename note/JVM/images/63.png => "note/JAVA\345\237\272\347\241\200/JVM/images/63.png" (100%)
+ rename note/JVM/images/64.png => "note/JAVA\345\237\272\347\241\200/JVM/images/64.png" (100%)
+ rename note/JVM/images/65.png => "note/JAVA\345\237\272\347\241\200/JVM/images/65.png" (100%)
+ rename note/JVM/images/66.png => "note/JAVA\345\237\272\347\241\200/JVM/images/66.png" (100%)
+ rename note/JVM/images/67.png => "note/JAVA\345\237\272\347\241\200/JVM/images/67.png" (100%)
+ rename note/JVM/images/68.png => "note/JAVA\345\237\272\347\241\200/JVM/images/68.png" (100%)
+ rename "note/JVM/images/JVM\345\236\203\345\234\276\346\224\266\351\233\206\345\231\250-\346\200\235\347\273\264\345\257\274\345\233\276.png" => "note/JAVA\345\237\272\347\241\200/JVM/images/JVM\345\236\203\345\234\276\346\224\266\351\233\206\345\231\250-\346\200\235\347\273\264\345\257\274\345\233\276.png" (100%)
+ rename note/JVM/images/timg.jpg => "note/JAVA\345\237\272\347\241\200/JVM/images/timg.jpg" (100%)
+ rename note/JVM/xmind/JVM.xmind => "note/JAVA\345\237\272\347\241\200/JVM/xmind/JVM.xmind" (100%)
+ create mode 100644 note/spring/asserts/01.jpg
+ create mode 100644 note/spring/asserts/08e5f8a505505def17e84becd4f0dbf9
+ create mode 100644 note/spring/asserts/12486646-ecf1d761f410847b.png
+ create mode 100644 note/spring/asserts/1e395ffbda4fe58a49897854a7d72ce9
+ create mode 100644 note/spring/asserts/38419d23d29c83a4758f73f85281e076
+ create mode 100644 note/spring/asserts/6abb56b3651c0eee105c510bb9fc6473
+ create mode 100644 note/spring/asserts/8f77d23019c10f4ac026968ce19067ef
+ create mode 100644 note/spring/asserts/QMT`KYSO45C`1BXQCP@H`BG.png
+ create mode 100644 note/spring/asserts/b12d2b0775b788c80247c9a7363011b6
+ create mode 100644 note/spring/asserts/b53b2484800ee0e35be4510d9ebe2891
+ create mode 100644 note/spring/asserts/bfdcd6b07c6f5434ba01895efd174cdc
+ create mode 100644 note/spring/asserts/bfdcd6b07c6f5434ba01895efd174cdc-1616855097068
+ create mode 100644 note/spring/asserts/image-20200226151837676.png
+ create mode 100644 note/spring/asserts/image-20200228170645405.png
+ create mode 100644 note/spring/asserts/image-20200302223132532.png
+ create mode 100644 note/spring/asserts/image-20200917123447738.png
+ create mode 100644 note/spring/asserts/image-20200917123646503.png
+ create mode 100644 note/spring/asserts/image-20200917125630315.png
+ create mode 100644 note/spring/asserts/image-20200917130039561.png
+ create mode 100644 note/spring/asserts/image-20200917132347404.png
+ create mode 100644 note/spring/asserts/image-20200918231200506.png
+ create mode 100644 note/spring/asserts/image-20210319000512886.png
+ create mode 100644 note/spring/asserts/image-20210319000526175.png
+ create mode 100644 note/spring/asserts/image-20210319000528138.png
+ create mode 100644 note/spring/asserts/image-20210319000722660.png
+ create mode 100644 note/spring/asserts/image-20210319000901190.png
+ create mode 100644 note/spring/asserts/image-20210319000922598.png
+ create mode 100644 note/spring/asserts/image-20210319001425447.png
+ create mode 100644 note/spring/asserts/image-20210324210959514.png
+ create mode 100644 note/spring/asserts/image-20210324234630935.png
+ create mode 100644 note/spring/asserts/image-20210324235353243.png
+ create mode 100644 note/spring/asserts/image-20210324235356833.png
+ create mode 100644 note/spring/asserts/image-20210327215902999.png
+ create mode 100644 note/spring/asserts/image-20210327220041779.png
+ create mode 100644 note/spring/asserts/image-20210327220406014.png
+ create mode 100644 note/spring/asserts/image-20210327220410669.png
+ create mode 100644 note/spring/asserts/image-20210327220507693.png
+ create mode 100644 note/spring/asserts/image-20210327222232806.png
+ create mode 100644 note/spring/asserts/image-20210327223412962.png
+ create mode 100644 note/spring/asserts/image-20210327223415764.png
+ create mode 100644 note/spring/asserts/image-20210327225058723.png
+ create mode 100644 note/spring/asserts/image-20210327225101310.png
+ create mode 100644 note/spring/asserts/image-20210328183605440.png
+ create mode 100644 note/spring/asserts/image-20210401000911924.png
+ create mode 100644 note/spring/asserts/image-20210401225302075.png
+ rename "note/\344\270\255\351\227\264\344\273\266/spring-ioc.md" => note/spring/spring-ioc.md (89%)
+ rename "note/\344\270\255\351\227\264\344\273\266/spring.md" => note/spring/spring.md (100%)
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/Kerberos.md"
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/asserts/12486646-ecf1d761f410847b.png"
+
+E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2021/04/06 周二11:49:55.80 
+2021/04/06 周二11:49:55.80
+
+E:\BaiduNetdiskDownload\typora>git add . 
