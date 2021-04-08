@@ -515,6 +515,21 @@ nodeselector和亲和力都配置的话,要求都要满足才行.
 看下功能是否已经开启 kubectl -h | grep
 在线上的pod注入一个容器要求打开共享的空间登内容
 
+### 准入控制及细粒度权限控制
+[root@k8s-master01 ~]# kubectl cluster-info
+Kubernetes control plane is running at https://192.168.200.236:8443
+CoreDNS is running at https://192.168.200.236:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+位置：
+
+more /usr/lib/systemd/system/kube-apiserver.service 
+
+![image-20210407223706928](asserts/image-20210407223706928.png)
+
+准入控制：
+
+​	就是在创建资源经过身份验证之后，kube-apiserver在数据写入etcd之前做一次拦截，然后对资源进行更改、判断正确性等操作。
+
 ### 常见问题
 
 1. 网络具体如何通信，如何查看
