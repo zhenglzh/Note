@@ -530,6 +530,20 @@ more /usr/lib/systemd/system/kube-apiserver.service
 
 ​	就是在创建资源经过身份验证之后，kube-apiserver在数据写入etcd之前做一次拦截，然后对资源进行更改、判断正确性等操作。
 
+kubectl et svc -n !$
+
+RABC的管理方式
+
+![image-20210408225024525](asserts/image-20210408225024525.png)
+
+#### 打开dashboard的basic认证功能
+
+所有的master，vim /usr/lib/systemd/system/kube-apiserver.service 
+
+之后更改kube-apiserver配置添加--basic-auth-file=/etc/kubernetes/basic_auth_file
+
+ kube-apiserver: Error: unknown flag: --basic-auth-file
+
 ### 常见问题
 
 1. 网络具体如何通信，如何查看
