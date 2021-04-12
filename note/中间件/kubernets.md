@@ -478,6 +478,8 @@ yum install nfs-utils -y
 df -Th 查看磁盘挂载内容
 生产上不建议使用，不是高可靠建议使用nas平台兼容nfs挂载数据共享
 
+
+
 #### PV方式
 
 kubectl get pv,pvc
@@ -497,18 +499,58 @@ suspend（是否挂起）
 #### 容忍和污点
 和label有点类型比label强大，可以符合和不符合都处理，当节点上有污点时候，允许pod能容忍的 时间，经常比如说节点挂了，集群会给节点打上污点，pod允许容忍多少分钟在这个节点上。
 节点不正常，磁盘不够等等 
+
+污点和容忍的理念：
+
+​	Taint在一类服务器上打上污点，让不能容忍这个污点的Pod不能部署在打了污点的服务器上。
+
+​	Master节点不应该部署系统Pod之外的任何Pod。
+
+​	每个节点可以打很多个污点。
+
+ kubectl taint node k8s-node02 master-test=test:NoSchedule
+
+ kubectl taint node k8s-node02 master-test=test:NoExecute
+
+##### NoSchedule污点
+
+···
+    tolerations:
+      - effect: NoSchedule
+        key: master-test
+        operator: Equal
+        value: test
+···
+
+Node节点有多个Taint，每个Taint都需要容忍才能部署上去。
+
+##### NoExecute污点
+
+NoExecute：该选项意味着一旦 Taint 生效，如该节点内正在运行的 pod 没有对应 Tolerate 设置，会直接被逐出
+
+![image-20210409220135336](asserts/image-20210409220135336.png)
+
+如果增加        tolerationSeconds: 60  #Pod在节点上运行60秒 在对应上面运行60秒后重新调度
+
 #### initContainer内容
 比post好用，post不一定在entry前执行完成，initcontainer保证。我们知道一个Pod里面的所有容器是共享数据卷和网络命名空间的，所以Init Container里面产生的数据可以被主容器使用到的，按照顺序完成init container的内容完成后退出继续后面的init
 
 initContainer添加内核配置？
+
+```
+while [ `ls  | wc -l` -eq 0 ];do  echo waiting for photo; sleep 2; done;
+```
+
 #### Affinity亲和力
-包含了nodeselector所有功能，还有容器亲和力更强大。
+包含了nodeselector所有功能，还有**容器**亲和力更强大。
 
 nodeselector和亲和力都配置的话,要求都要满足才行.  
 
  部署在同一个拓扑域（节点上label的标签算是一个拓扑域，因为各个的值不同又是各个的拓扑域），算法比较耗资源 按需来配置
 
 #### RBAC内容
+
+
 
 
 #### 临时容器

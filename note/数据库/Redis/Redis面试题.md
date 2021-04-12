@@ -35,7 +35,7 @@ volatile-ttl: 回收在过期集合的键，并且优先回收存活时间（TTL
 如果没有键满足回收的前提条件的话，策略volatile-lru, volatile-random以及volatile-ttl就和noeviction 差不多了。
 ```
 
-## 手写LRU缓存
+### 手写LRU缓存
 
 ![image-20210406211623341](asserts/image-20210406211623341.png)
 
