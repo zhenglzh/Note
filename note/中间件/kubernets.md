@@ -586,6 +586,10 @@ RABC的管理方式
 
  kube-apiserver: Error: unknown flag: --basic-auth-file
 
+### 动态化存储
+
+![image-20210413225422407](asserts/image-20210413225422407.png)
+
 ### 常见问题
 
 1. 网络具体如何通信，如何查看
