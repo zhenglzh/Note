@@ -550,12 +550,24 @@ nodeselector和亲和力都配置的话,要求都要满足才行.
 
 #### RBAC内容
 
+4个顶级的资源
+
+role：角色有命名空间   
+
+clusterRole：作用与整个集群的role
+
+rolebinding:角色绑定到user、group、serviceaccount
+
+clusterrolebinding:集群
 
 
 
 #### 临时容器
+
 看下功能是否已经开启 kubectl -h | grep
 在线上的pod注入一个容器要求打开共享的空间登内容
+
+
 
 ### 准入控制及细粒度权限控制
 [root@k8s-master01 ~]# kubectl cluster-info
