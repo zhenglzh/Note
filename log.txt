@@ -5593,3 +5593,30 @@ E:\BaiduNetdiskDownload\typora>echo 2021/04/20 周二11:49:55.58
 2021/04/20 周二11:49:55.58
 
 E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 925f033] 'autoSave'
+ 15 files changed, 193 insertions(+), 16 deletions(-)
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/MQ/asserts/01-1618889180936.png"
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/MQ/asserts/01.png"
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/MQ/asserts/03-1618889180931.png"
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/MQ/asserts/03.png"
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/MQ/asserts/04-1618889180929.png"
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/MQ/asserts/04.png"
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/MQ/asserts/05.png"
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/MQ/asserts/06.png"
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/MQ/asserts/07.png"
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/MQ/asserts/08.png"
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/MQ/asserts/09.png"
+ create mode 100644 "note/\344\270\255\351\227\264\344\273\266/MQ/\346\266\210\346\201\257\351\235\242\350\257\225\351\242\230.md"
+
+E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2021/04/21 周三11:49:59.00 
+2021/04/21 周三11:49:59.00
+
+E:\BaiduNetdiskDownload\typora>git add . 
