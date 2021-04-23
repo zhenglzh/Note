@@ -5638,3 +5638,50 @@ E:\BaiduNetdiskDownload\typora>echo 2021/04/22 周四11:49:58.69
 2021/04/22 周四11:49:58.69
 
 E:\BaiduNetdiskDownload\typora>git add . 
+
+E:\BaiduNetdiskDownload\typora>git commit -m 'autoSave' 
+[master 62f0dd2] 'autoSave'
+ 33 files changed, 2406 insertions(+)
+ create mode 100644 "note/JAVA\345\237\272\347\241\200/java\345\237\272\347\241\200 \351\235\242\350\257\225\351\242\230.md"
+ create mode 100644 note/spring/asserts/01-1619021097414.png
+ create mode 100644 note/spring/asserts/01.png
+ create mode 100644 note/spring/asserts/02.png
+ create mode 100644 note/spring/asserts/03.png
+ create mode 100644 note/spring/asserts/04.png
+ create mode 100644 note/spring/asserts/05.png
+ create mode 100644 note/spring/asserts/20944a735d250d7d3338fe9deea179f8
+ create mode 100644 note/spring/asserts/252461fbb6d64d3dbc1914b7eadbfb86
+ create mode 100644 note/spring/asserts/25e9704082444add1192bc69c87198e9
+ create mode 100644 note/spring/asserts/36465fd7d91b3a4aeb3b28c3777649e6
+ create mode 100644 note/spring/asserts/43f306a2aa7bc27015d3baa7832d13b6
+ create mode 100644 note/spring/asserts/4935fcc0a209fd1d4b70cade94986f59
+ create mode 100644 note/spring/asserts/64e9a7827c76d38f899160da6f736ea2
+ create mode 100644 note/spring/asserts/6650aa32de0def76db0e4c5228619aef
+ create mode 100644 note/spring/asserts/7832f7526998500b2253f5bc0683e930
+ create mode 100644 note/spring/asserts/80c74f1d7cb9fc2a416e7b61a055d778
+ create mode 100644 note/spring/asserts/8848af2a2e093d0421d1c7113dedefc1
+ create mode 100644 note/spring/asserts/950702ef9d35f23b5081c341c1de329a
+ create mode 100644 note/spring/asserts/c1a8294fcaf03a88818e4194bb348f0b
+ create mode 100644 note/spring/asserts/d4610e439ae20ceb2d24020e9ff25c3a
+ create mode 100644 note/spring/asserts/image-20210422001023938.png
+ create mode 100644 "note/spring/spring boot\351\235\242\350\257\225\351\242\230.md"
+ create mode 100644 "note/spring/spring cloud\351\235\242\350\257\225\351\242\230.md"
+ create mode 100644 "note/\346\225\260\346\215\256\345\272\223/MYSQL/Mysql \351\235\242\350\257\225\351\242\230.md"
+ create mode 100644 "note/\346\225\260\346\215\256\345\272\223/MYSQL/asserts/01.png"
+ create mode 100644 "note/\346\225\260\346\215\256\345\272\223/MYSQL/asserts/06.png"
+ create mode 100644 "note/\346\225\260\346\215\256\345\272\223/MYSQL/asserts/259d196856a231aff5e3cf1505848af4"
+ create mode 100644 "note/\346\225\260\346\215\256\345\272\223/MYSQL/asserts/2fb922405a35479fa99eb2de4708638c"
+ create mode 100644 "note/\346\225\260\346\215\256\345\272\223/MYSQL/asserts/84ea509fa091a10add4e7614e6cb37db"
+ create mode 100644 "note/\346\225\260\346\215\256\345\272\223/MYSQL/asserts/d49d260fc1eb8f992df0401b70d70e3d"
+ create mode 100644 "note/\346\225\260\346\215\256\345\272\223/MYSQL/asserts/image-20210421233353529.png"
+
+E:\BaiduNetdiskDownload\typora>git push 
+
+E:\BaiduNetdiskDownload\typora>cd E:\BaiduNetdiskDownload\typora 
+
+E:\BaiduNetdiskDownload\typora>e:
+
+E:\BaiduNetdiskDownload\typora>echo 2021/04/23 周五11:49:56.67 
+2021/04/23 周五11:49:56.67
+
+E:\BaiduNetdiskDownload\typora>git add . 
