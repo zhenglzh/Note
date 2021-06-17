@@ -5190,20 +5190,295 @@ protected void populateBean(String beanName, RootBeanDefinition mbd, @Nullable B
 
 - 统一存入到 PropertyValues 中，PropertyValues 用于描述 bean 的属性。
 
-  <2>处，根据注入类型(AbstractBeanDefinition#getResolvedAutowireMode()
-
-   方法的返回值 )的不同来判断：
+  <2>处，根据注入类型(AbstractBeanDefinition#getResolvedAutowireMode()方法的返回值 )的不同来判断：
 
   - 是根据名称来自动注入（`#autowireByName(...)`）
-  - 还是根据类型来自动注入（`#autowireByType(...)`）
+- 还是根据类型来自动注入（`#autowireByType(...)`）
   - 详细解析，见 [「1.1 自动注入」](http://svip.iocoder.cn/Spring/IoC-get-Bean-createBean-4/#) 。
-
+  
   - `<3>` ，进行 BeanPostProcessor 处理。
-  - `<4>` ，依赖检测。
-
+- `<4>` ，依赖检测。
+  
 - `<5>` ，将所有 PropertyValues 中的属性，填充到 BeanWrapper 中。
 
+#### 7.1  自动注入
 
+Spring 会根据注入类型（ `byName` / `byType` ）的不同，调用不同的方法来注入属性值。代码如下：
+
+```java
+// AbstractBeanDefinition.java
+
+/**
+ * 注入模式
+ */
+private int autowireMode = AUTOWIRE_NO;
+
+public int getResolvedAutowireMode() {
+	if (this.autowireMode == AUTOWIRE_AUTODETECT) { // 自动检测模式，获得对应的检测模式
+		// Work out whether to apply setter autowiring or constructor autowiring.
+		// If it has a no-arg constructor it's deemed to be setter autowiring,
+		// otherwise we'll try constructor autowiring.
+		Constructor<?>[] constructors = getBeanClass().getConstructors();
+		for (Constructor<?> constructor : constructors) {
+			if (constructor.getParameterCount() == 0) {
+				return AUTOWIRE_BY_TYPE;
+			}
+		}
+		return AUTOWIRE_CONSTRUCTOR;
+	} else {
+		return this.autowireMode;
+	}
+}
+```
+
+##### 7.1.1 autowireByName
+
+`#autowireByName(String beanName, AbstractBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs)` 方法，是根据**属性名称**，完成自动依赖注入的。代码如下：
+
+```java
+// AbstractAutowireCapableBeanFactory.java
+
+protected void autowireByName(String beanName, AbstractBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
+    // <1> 对 Bean 对象中非简单属性
+    String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
+    // 遍历 propertyName 数组
+    for (String propertyName : propertyNames) {
+        // 如果容器中包含指定名称的 bean，则将该 bean 注入到 bean中
+        if (containsBean(propertyName)) {
+            // 递归初始化相关 bean
+            Object bean = getBean(propertyName);
+            // 为指定名称的属性赋予属性值
+            pvs.add(propertyName, bean);
+            // 属性依赖注入
+            registerDependentBean(propertyName, beanName);
+            if (logger.isTraceEnabled()) {
+                logger.trace("Added autowiring by name from bean name '" + beanName +
+                        "' via property '" + propertyName + "' to bean named '" + propertyName + "'");
+            }
+        } else {
+            if (logger.isTraceEnabled()) {
+                logger.trace("Not autowiring property '" + propertyName + "' of bean '" + beanName +
+                        "' by name: no matching bean found");
+            }
+        }
+    }
+}
+```
+
+- `<1>` 处，该方法逻辑很简单，获取该 bean 的非简单属性。**什么叫做非简单属性呢**？就是类型为对象类型的属性，但是这里并不是将所有的对象类型都都会找到，比如 8 个原始类型，String 类型 ，Number类型、Date类型、URL类型、URI类型等都会被忽略。代码如下：
+
+  ```java
+  // AbstractAutowireCapableBeanFactory.java
+  
+  protected String[] unsatisfiedNonSimpleProperties(AbstractBeanDefinition mbd, BeanWrapper bw) {
+      // 创建 result 集合
+      Set<String> result = new TreeSet<>();
+      PropertyValues pvs = mbd.getPropertyValues();
+      // 遍历 PropertyDescriptor 数组
+      PropertyDescriptor[] pds = bw.getPropertyDescriptors();
+      for (PropertyDescriptor pd : pds) {
+          if (pd.getWriteMethod() != null // 有可写方法
+                  && !isExcludedFromDependencyCheck(pd) // 依赖检测中没有被忽略
+                  && !pvs.contains(pd.getName()) // pvs 不包含该属性名
+                  && !BeanUtils.isSimpleProperty(pd.getPropertyType())) { // 不是简单属性类型
+              result.add(pd.getName()); // 添加到 result 中
+          }
+      }
+      return StringUtils.toStringArray(result);
+  }
+  ```
+
+  - 过滤**条件**为：有可写方法、依赖检测中没有被忽略、不是简单属性类型。
+  - 过滤**结果**为：其实这里获取的就是需要依赖注入的属性。
+
+- 获取需要依赖注入的属性后，通过迭代、递归的方式初始化相关的 bean ，然后调用 `#registerDependentBean(String beanName, String dependentBeanName)` 方法，完成注册依赖。代码如下：
+
+  ```java
+  // DefaultSingletonBeanRegistry.java
+  
+  /**
+   * Map between dependent bean names: bean name to Set of dependent bean names.
+   *
+   * 保存的是依赖 beanName 之间的映射关系：beanName - > 依赖 beanName 的集合
+   */
+  private final Map<String, Set<String>> dependentBeanMap = new ConcurrentHashMap<>(64);
+  
+  /**
+   * Map between depending bean names: bean name to Set of bean names for the bean's dependencies.
+   *
+   * 保存的是依赖 beanName 之间的映射关系：依赖 beanName - > beanName 的集合
+   */
+  private final Map<String, Set<String>> dependenciesForBeanMap = new ConcurrentHashMap<>(64);
+  
+  public void registerDependentBean(String beanName, String dependentBeanName) {
+      // 获取 beanName
+      String canonicalName = canonicalName(beanName);
+      // 添加 <canonicalName, <dependentBeanName>> 到 dependentBeanMap 中
+      synchronized (this.dependentBeanMap) {
+          Set<String> dependentBeans =
+                  this.dependentBeanMap.computeIfAbsent(canonicalName, k -> new LinkedHashSet<>(8));
+          if (!dependentBeans.add(dependentBeanName)) {
+              return;
+          }
+      }
+      // 添加 <dependentBeanName, <canonicalName>> 到 dependenciesForBeanMap 中
+      synchronized (this.dependenciesForBeanMap) {
+          Set<String> dependenciesForBean =
+                  this.dependenciesForBeanMap.computeIfAbsent(dependentBeanName, k -> new LinkedHashSet<>(8));
+          dependenciesForBean.add(canonicalName);
+      }
+  }
+  ```
+
+
+
+##### 7.1.2 autowireByType
+
+- 其实主要过程和根据名称自动注入**差不多**，都是找到需要依赖注入的属性，然后通过迭代的方式寻找所匹配的 bean，最后调用 `#registerDependentBean(...)` 方法，来注册依赖。不过相对于 `#autowireByName(...)` 方法而言，根据类型寻找相匹配的 bean 过程**比较复杂**。
+- 
+
+#### 7.2 applyPropertyValues
+
+其实，上面只是完成了所有注入属性的获取，将获取的属性封装在 PropertyValues 的实例对象 `pvs` 中，并没有应用到已经实例化的 bean 中。而 `#applyPropertyValues(String beanName, BeanDefinition mbd, BeanWrapper bw, PropertyValues pvs)` 方法，则是完成这一步骤的。代码如下：
+
+```
+// AbstractAutowireCapableBeanFactory.java
+
+protected void applyPropertyValues(String beanName, BeanDefinition mbd, BeanWrapper bw, PropertyValues pvs) {
+    if (pvs.isEmpty()) {
+        return;
+    }
+
+    // 设置 BeanWrapperImpl 的 SecurityContext 属性
+    if (System.getSecurityManager() != null && bw instanceof BeanWrapperImpl) {
+        ((BeanWrapperImpl) bw).setSecurityContext(getAccessControlContext());
+    }
+
+    // MutablePropertyValues 类型属性
+    MutablePropertyValues mpvs = null;
+
+    // 原始类型
+    List<PropertyValue> original;
+    // 获得 original
+    if (pvs instanceof MutablePropertyValues) {
+        mpvs = (MutablePropertyValues) pvs;
+        // 属性值已经转换
+        if (mpvs.isConverted()) {
+            // Shortcut: use the pre-converted values as-is.
+            try {
+                // 为实例化对象设置属性值 ，依赖注入真真正正地实现在此！！！！！
+                bw.setPropertyValues(mpvs);
+                return;
+            } catch (BeansException ex) {
+                throw new BeanCreationException(
+                        mbd.getResourceDescription(), beanName, "Error setting property values", ex);
+            }
+        }
+        original = mpvs.getPropertyValueList();
+    } else {
+        // 如果 pvs 不是 MutablePropertyValues 类型，则直接使用原始类型
+        original = Arrays.asList(pvs.getPropertyValues());
+    }
+
+    // 获取 TypeConverter = 获取用户自定义的类型转换
+    TypeConverter converter = getCustomTypeConverter();
+    if (converter == null) {
+        converter = bw;
+    }
+
+    // 获取对应的解析器
+    BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, beanName, mbd, converter);
+
+    // Create a deep copy, resolving any references for values.
+    List<PropertyValue> deepCopy = new ArrayList<>(original.size());
+    boolean resolveNecessary = false;
+    // 遍历属性，将属性转换为对应类的对应属性的类型
+    for (PropertyValue pv : original) {
+        // 属性值不需要转换
+        if (pv.isConverted()) {
+            deepCopy.add(pv);
+        // 属性值需要转换
+        } else {
+            String propertyName = pv.getName();
+            Object originalValue = pv.getValue(); // 原始的属性值，即转换之前的属性值
+            Object resolvedValue = valueResolver.resolveValueIfNecessary(pv, originalValue); // 转换属性值，例如将引用转换为IoC容器中实例化对象引用 ！！！！！ 对属性值的解析！！
+            Object convertedValue = resolvedValue; // 转换之后的属性值
+            boolean convertible = bw.isWritableProperty(propertyName) &&
+                    !PropertyAccessorUtils.isNestedOrIndexedProperty(propertyName);  // 属性值是否可以转换
+            // 使用用户自定义的类型转换器转换属性值
+            if (convertible) {
+                convertedValue = convertForProperty(resolvedValue, propertyName, bw, converter);
+            }
+            // Possibly store converted value in merged bean definition,
+            // in order to avoid re-conversion for every created bean instance.
+            // 存储转换后的属性值，避免每次属性注入时的转换工作
+            if (resolvedValue == originalValue) {
+                if (convertible) {
+                    // 设置属性转换之后的值
+                    pv.setConvertedValue(convertedValue);
+                }
+                deepCopy.add(pv);
+            // 属性是可转换的，且属性原始值是字符串类型，且属性的原始类型值不是
+            // 动态生成的字符串，且属性的原始值不是集合或者数组类型
+            } else if (convertible && originalValue instanceof TypedStringValue &&
+                    !((TypedStringValue) originalValue).isDynamic() &&
+                    !(convertedValue instanceof Collection || ObjectUtils.isArray(convertedValue))) {
+                pv.setConvertedValue(convertedValue);
+                deepCopy.add(pv);
+            } else {
+                resolveNecessary = true;
+                // 重新封装属性的值
+                deepCopy.add(new PropertyValue(pv, convertedValue));
+            }
+        }
+    }
+    // 标记属性值已经转换过
+    if (mpvs != null && !resolveNecessary) {
+        mpvs.setConverted();
+    }
+
+    // Set our (possibly massaged) deep copy.
+    // 进行属性依赖注入，依赖注入的真真正正实现依赖的注入方法在此！！！
+    try {
+        bw.setPropertyValues(new MutablePropertyValues(deepCopy));
+    } catch (BeansException ex) {
+        throw new BeanCreationException(
+                mbd.getResourceDescription(), beanName, "Error setting property values", ex);
+    }
+}
+```
+
+总结 `#applyPropertyValues(...)` 方法（完成属性转换）：
+
+- 属性值类型**不需要**转换时，不需要解析属性值，直接准备进行依赖注入。
+- 属性值**需要**进行类型转换时，如对其他对象的引用等，首先需要解析属性值，然后对解析后的属性值进行依赖注入。
+
+
+
+
+
+### 8. 创建 Bean（五）之循环依赖处理
+
+需要搞懂两个点：为什么需要二级缓存？为什么需要三级缓存？
+
+#### 8.1 什么是循环依赖
+
+循环依赖，其实就是循环引用，就是两个或者两个以上的 bean 互相引用对方，最终形成一个闭环，如 A 依赖 B，B 依赖 C，C 依赖 A。如下图所示：
+
+![img](http://static.iocoder.cn/20170912082357749.jpeg)
+
+循环依赖，其实就是一个**死循环**的过程，在初始化 A 的时候发现引用了 B，这时就会去初始化 B，然后又发现 B 引用 C，跑去初始化 C，初始化 C 的时候发现引用了 A，则又会去初始化 A，依次循环永不退出，除非有**终结条件**。
+
+Spring 循环依赖的**场景**有两种：
+
+1. 构造器的循环依赖。
+2. field 属性的循环依赖。
+
+对于构造器的循环依赖，Spring 是无法解决的，只能抛出 BeanCurrentlyInCreationException 异常表示循环依赖，**所以下面我们分析的都是基于 field 属性的循环依赖**。
+
+在博客 [《【【死磕 Spring】—— IoC 之开启 Bean 的加载》](http://svip.iocoder.cn/Spring/IoC-get-Bean-begin) 中提到，Spring 只解决 scope 为 singleton 的循环依赖。对于scope 为 prototype 的 bean ，Spring 无法解决，直接抛出 BeanCurrentlyInCreationException 异常。
+
+为什么 Spring 不处理 prototype bean 呢？其实如果理解 Spring 是如何解决 singleton bean 的循环依赖就明白了。这里先卖一个关子，我们先来关注 Spring 是如何解决 singleton bean 的循环依赖的。
 
 ## SpringWeb
 
