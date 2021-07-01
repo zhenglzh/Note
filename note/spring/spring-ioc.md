@@ -5749,7 +5749,7 @@ protected void addSingleton(String beanName, Object singletonObject) {
 
 #### 8.3 总结
 
-为什么是3级别缓存？AOP 和性能 ，一级 是完全初始化好的对象 2级是 创建好的对象，可能包含代理对象 3级是创建好的ObjectFactory
+为什么是3级别缓存？AOP 和性能 ，**一级 是完全初始化好的对象 2级是 创建好的对象，可能包含代理对象 3级是创建好的ObjectFactory**
 
 至此，Spring 关于 singleton bean 循环依赖已经分析完毕了。所以我们基本上可以确定 Spring 解决循环依赖的方案了：
 
@@ -6181,7 +6181,41 @@ protected void invokeInitMethods(String beanName, final Object bean, @Nullable R
 
 
 
+### 10. bean 的生命周期
 
+![img](asserts/2a90a57e3bb96cc6ffa2619babe72bc4)
+
+### 11. BeanFactoryPostProcessor深入分析
+
+BeanFactoryPostProcessor 的机制，就相当于给了我们在 Bean 实例化之前最后一次修改 BeanDefinition 的机会，我们可以利用这个机会对 BeanDefinition 来进行一些额外的操作，比如更改某些 bean 的一些属性，给某些 Bean 增加一些其他的信息等等操作。
+
+```java
+ void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException;
+```
+
+`#postProcessBeanFactory(...)` 方法，工作于 BeanDefinition 加载完成之后，Bean 实例化之前，其主要作用是对加载 BeanDefinition 进行修改。有一点需要需要**注意**的是在 `#postProcessBeanFactory(...)` 方法中，千万不能进行 Bean 的实例化工作，因为这样会导致 Bean 过早实例化，会产生严重后果，**我们始终需要注意的是 BeanFactoryPostProcessor 是与 BeanDefinition 打交道的，如果想要与 Bean 打交道，请使用 BeanPostProcessor** 。
+
+与 BeanPostProcessor 一样，BeanFactoryPostProcessor 同样支持**排序**，一个容器可以同时拥有多个 BeanFactoryPostProcessor ，这个时候如果我们比较在乎他们的顺序的话，可以实现 Ordered 接口。
+
+如果要自定义 BeanFactoryPostProcessor ，直接实现该接口即可。
+
+#### 示例
+
+```java
+public class BeanFactoryPostProcessor_1 implements BeanFactoryPostProcessor,Ordered {    @Override    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {        System.out.println("调用 BeanFactoryPostProcessor_1 ...");        System.out.println("容器中有 BeanDefinition 的个数：" + beanFactory.getBeanDefinitionCount());        // 获取指定的 BeanDefinition        BeanDefinition bd = beanFactory.getBeanDefinition("studentService");        MutablePropertyValues pvs = bd.getPropertyValues();        pvs.addPropertyValue("name","chenssy1");        pvs.addPropertyValue("age",15);    }    @Override    public int getOrder() {        return 1;    }}
+```
+
+#### 原理
+
+ApplicationContext  会自动识别和注册beanFactoryPostProcessor
+
+### 12. PropertyPlaceholderConfigurer解析
+
+beanFactoryPostProcesser
+
+PropertyPlacehoderConfigurer 允许我们用 Properties 文件中的属性，来定义应用上下文（配置文件或者注解）。就是说我们在 XML 配置文件（或者其他方式，如注解方式）中使用**占位符**的方式来定义一些资源，并将这些占位符所代表的资源配置到 Properties 中，这样只需要对 Properties 文件进行修改即可，这个特性非常，在后面来介绍一种我们在项目中经常用到场景。
+
+![201809161001](asserts/201809161001.png)
 
 
 
