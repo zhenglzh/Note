@@ -6209,15 +6209,200 @@ public class BeanFactoryPostProcessor_1 implements BeanFactoryPostProcessor,Orde
 
 ApplicationContext  会自动识别和注册beanFactoryPostProcessor
 
-### 12. PropertyPlaceholderConfigurer解析
+####  PropertyPlaceholderConfigurer解析
 
-beanFactoryPostProcesser
+是beanFactoryPostProcesser的重要子类
 
 PropertyPlacehoderConfigurer 允许我们用 Properties 文件中的属性，来定义应用上下文（配置文件或者注解）。就是说我们在 XML 配置文件（或者其他方式，如注解方式）中使用**占位符**的方式来定义一些资源，并将这些占位符所代表的资源配置到 Properties 中，这样只需要对 Properties 文件进行修改即可，这个特性非常，在后面来介绍一种我们在项目中经常用到场景。
 
 ![201809161001](asserts/201809161001.png)
 
+内容较多，具体举个例子就是我们具体在成员变量里面设置 ${value:aaaa}这种的，会被properties中替换掉一个具体的值来处理，而这个过程实在beanFactoryPost中进行处理也就是beanDefinition完成后，准备实例化bean开始前。
 
+##### 多环境切换-环境切换
+
+在我们项目开发过程中，都会存在多个环境，如 dev 、test 、prod 等等，各个环境的配置都会不一样，在传统的开发过程中我们都是在进行打包的时候进行人工干预，或者将配置文件放在系统外部，加载的时候指定加载目录，这种方式容易出错，那么有没有一种比较好的方式来解决这种情况呢？有，**利用 PropertyPlaceholderConfigurer 的特性来动态加载配置文件，实现多环境切换**。
+
+首先我们定义四个 Properties 文件，如下：
+
+[![img](asserts/15374242055683.jpg)](http://static.iocoder.cn/15374242055683.jpg)
+
+配置内容如下：
+
+- `application-dev.properties` 文件，如下：
+
+  ```
+  student.name=chenssy-dev
+  ```
+
+- `application-test.properties` 文件，如下：
+
+  ```
+  student.name=chenssy-test
+  ```
+
+- `application-prod.properties` 文件，如下：
+
+  ```
+  student.name=chenssy-prod
+  ```
+
+然后实现一个类，该类继承 PropertyPlaceholderConfigurer，实现 `#loadProperties(Properties props)` 方法，根据环境的不同加载不同的配置文件，代码如下：
+
+```java
+public class CustomPropertyConfig extends PropertyPlaceholderConfigurer {
+
+    private Resource[] locations;
+
+    private PropertiesPersister propertiesPersister = new DefaultPropertiesPersister();
+
+    @Override
+    public void setLocations(Resource[] locations) {
+        this.locations = locations;
+    }
+
+    @Override
+    public void setLocalOverride(boolean localOverride) {
+        this.localOverride = localOverride;
+    }
+
+    /**
+     * 覆盖这个方法，根据启动参数，动态读取配置文件
+     * @param props
+     * @throws IOException
+     */
+    @Override
+    protected void loadProperties(Properties props) throws IOException {
+        if (locations != null) {
+            // locations 里面就已经包含了那三个定义的文件
+            for (Resource location : this.locations) {
+                InputStream is = null;
+                try {
+                    String filename = location.getFilename();
+                    String env = "application-" + System.getProperty("spring.profiles.active", "dev") + ".properties";
+
+                    // 找到我们需要的文件，加载
+                    if (filename.contains(env)) {
+                        logger.info("Loading properties file from " + location);
+                        is = location.getInputStream();
+                        this.propertiesPersister.load(props, is);
+
+                    }
+                } catch (IOException ex) {
+                    logger.info("读取配置文件失败.....");
+                    throw ex;
+                } finally {
+                    if (is != null) {
+                        is.close();
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+配置文件：
+
+```
+<bean id="PropertyPlaceholderConfigurer" class="org.springframework.core.custom.CustomPropertyConfig">
+    <property name="locations">
+        <list>
+            <value>classpath:config/application-dev.properties</value>
+            <value>classpath:config/application-test.properties</value>
+            <value>classpath:config/application-prod.properties</value>
+        </list>
+    </property>
+</bean>
+
+<bean id="studentService" class="org.springframework.core.service.StudentService">
+    <property name="name" value="${student.name}"/>
+</bean>
+```
+
+在 idea 的 VM options 里面增加 `-Dspring.profiles.active=dev`，标志当前环境为 dev 环境。测试代码如下：
+
+```
+ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
+
+StudentService studentService = (StudentService) context.getBean("studentService");
+System.out.println("student name:" + studentService.getName());
+```
+
+运行结果：
+
+```
+student name:chenssy-dev
+```
+
+当将 `-Dspring.profiles.active` 调整为 test，则打印结果则是 chenssy-test，这样就完全实现了根据不同的环境加载不同的配置。
+
+如果各位用过 Spring Boot 的话，这个就完全是 Spring Boot 里面的 `spring.profiles.active` ，可参见 `org.springframework.core.envAbstractEnvironment` 类，对应博客为 [《Spring boot源码分析-profiles环境（4）》](https://blog.csdn.net/jamet/article/details/77508182) 。
+
+#### PropertyOverrideConfigurer 
+
+PropertyOverrideConfigurer 允许我们对 Spring 容器中配置的任何我们想处理的 bean 定义的 property 信息进行覆盖替换。通俗点说，就是我们可以通过 PropertyOverrideConfigurer 来覆盖任何 bean 中的任何属性，只要我们想。
+
+##### 使用
+
+PropertyOverrideConfigurer 的使用规则是 `beanName.propertyName=value`，这里需要注意的是 `beanName.propertyName` 则是该 bean 中存在的属性。
+
+比如：
+
+依然使用以前的例子，`Student.class`，我们只需要修改下配置文件，声明下 PropertyOverrideConfigurer 以及其加载的配置文件。如下：
+
+```
+<bean class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
+    <property name="locations">
+        <list>
+            <value>classpath:application.properties</value>
+        </list>
+    </property>
+</bean>
+
+<bean id="student" class="org.springframework.core.service.StudentService">
+    <property name="name" value="chenssy"/>
+</bean>
+```
+
+- 指定 student 的 `name` 属性值为 `"chenssy"` 。
+
+- 声明 PropertyOverrideConfigurer 加载的文件为 `application.properties`，内容如下：
+
+  ```
+  student.name = chenssy-PropertyOverrideConfigurer
+  ```
+
+  - 指定 beanName 为 `student` 的 bean 的 `name` 属性值为 `"chenssy-PropertyOverrideConfigurer"` 。
+
+测试打印 `student` 中的 `name` 属性值，代码如下：
+
+```
+ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
+
+StudentService studentService = (StudentService) context.getBean("student");
+System.out.println("student name:" + studentService.getName());
+```
+
+运行结果为：
+
+[![img](asserts/15377119278769.jpg)](http://static.iocoder.cn/15377119278769.jpg)
+
+从中可以看出 PropertyOverrideConfigurer 定义的文件取代了 bean 中默认的值。
+
+示例二：
+
+下面我们看一个有趣的例子，如果我们一个 bean 中 PropertyPlaceholderConfigurer 和 PropertyOverrideConfigurer 都使用呢？那是显示谁定义的值呢？这里先简单分析下：如果PropertyOverrideConfigurer 先作用，那么 PropertyPlaceholderConfigurer 在匹配占位符的时候就找不到了，**如果 PropertyOverrideConfigurer 后作用，也会直接取代 PropertyPlaceholderConfigurer 定义的值，所以无论如何都会显示 PropertyOverrideConfigurer 定义的值**。是不是这样呢
+
+如何
+
+##### 使用原理
+
+![spring-201809231001](asserts/spring-201809231001.png)
+
+#### 两者结构比较
+
+![spring-201809231002](asserts/spring-201809231002.png)
 
 ## SpringWeb
 
