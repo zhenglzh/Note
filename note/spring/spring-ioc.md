@@ -6404,6 +6404,25 @@ System.out.println("student name:" + studentService.getName());
 
 ![spring-201809231002](asserts/spring-201809231002.png)
 
+
+
+
+
+### 12. [IoC 之深入分析 Bean 的类型转换体系](http://svip.iocoder.cn/Spring/IoC-TypeConverter/)
+
+一个优秀的convert实现处理，参考仿写一个，covert的注册，使用等
+
+抽象方法里面定义一个 抽象的处理类：typeConverterDelegate 
+各个实现自己设置这个 处理类，抽象方法委派给这个抽象类处理
+ConverterRegistry，ConversionService ConfigurableConversionService实现他 进行处理 ，再来一个 真正处理拉欸实现加缓存，自定义的covert类和查询covert都在这里面啊等等
+ResolvableType 用于封装 Java 的 Type 类型。
+
+### 13.BeanWrapper分析
+
+![2018101210001](asserts/fea787ac555caf4dab31fb3bc889dc8d)
+
+
+
 ## SpringWeb
 
 
