@@ -34,6 +34,7 @@ org.springframework.beans.factory.BeanFactory，是一个非常纯粹的 bean �
 
 - BeanFactory 有三个直接子类 ListableBeanFactory、HierarchicalBeanFactory 和 AutowireCapableBeanFactory 。
 - DefaultListableBeanFactory 为最终默认实现，它实现了所有接口。
+- 为何定义这么多个接口，，它主要 是为了区分在 Spring 内部在操作过程中对象的传递和转化过程中，对对象的数据访问所做的限制。 例如 ListableBeanFactory 接口表示这些 Bean 是可列表的，而 HierarchicalBeanFactory 表 示的是这些 Bean 是有继承关系的，也就是每个 Bean 有可能有父 Bean。 AutowireCapableBeanFactory 接口定义 Bean 的自动装配规则。
 
 
 #### 2.3 BeanDefinition 体系
@@ -485,8 +486,11 @@ protected String determineRootDir(String location) {
     
         该类可以帮助spring查找到符合ant-style格式的所有资源，所以富有借鉴意义。附：ant-style指的是类似*/?此类的匹配字符
 
-
 ### 三、IoC 之加载 BeanDefinition
+
+![image-20210711183219956](asserts/image-20210711183219956.png)
+
+![image-20210711183255381](asserts/image-20210711183255381.png)
 
 先看一段熟悉的代码：
 
@@ -6420,6 +6424,1341 @@ ResolvableType 用于封装 Java 的 Type 类型。
 ### 13.BeanWrapper分析
 
 ![2018101210001](asserts/fea787ac555caf4dab31fb3bc889dc8d)
+
+
+
+### 14.IoC 之 Bean 的实例化策略：InstantiationStrategy
+
+在创建bean时候，实例化bean 时候，不论是通过如果 Supplier 不为空，则调用 `#obtainFromSupplier(...)` 实例化 bean。如果 `factory` 不为空，则调用 `#instantiateUsingFactoryMethod(...)` 方法来实例化 Bean 。如果都不是，则调用 `#instantiateBean(...)` 方法来实例化 Bean ，最后都一定会调用到 InstantiationStrategy 接口的 `#instantiate(...)` 方法。
+
+#### InstantiationStrategy
+
+InstantiationStrategy 接口定义了 Spring Bean 实例化的策略，根据创建对象情况的不同，提供了三种策略：无参构造方法、有参构造方法、工厂方法。代码如下：
+
+```java
+public interface InstantiationStrategy {
+
+    /**
+    * 默认构造方法
+    */
+    Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner)
+    throws BeansException;
+
+    /**
+    * 指定构造方法
+    */
+    Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
+    Constructor<?> ctor, @Nullable Object... args) throws BeansException;
+
+    /**
+    * 工厂方法
+    */
+    Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
+    @Nullable Object factoryBean, Method factoryMethod, @Nullable Object... args)
+    throws BeansException;
+
+}
+```
+
+#### SimpleInstantiationStrategy
+
+InstantiationStrategy 接口有两个实现类：SimpleInstantiationStrategy 和 CglibSubclassingInstantiationStrategy。
+
+SimpleInstantiationStrategy 对以上三个方法都做了简单的实现。
+
+① 如果是工厂方法实例化，则直接使用反射创建对象，如下：
+
+```java
+// SimpleInstantiationStrategy.java
+
+@Override
+public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
+        @Nullable Object factoryBean, final Method factoryMethod, Object... args) {
+    try {
+        // 设置 Method 可访问
+        if (System.getSecurityManager() != null) {
+            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                ReflectionUtils.makeAccessible(factoryMethod);
+                return null;
+            });
+        } else {
+            ReflectionUtils.makeAccessible(factoryMethod);
+        }
+
+        // 获得原 Method 对象
+        Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
+        try {
+            // 设置新的 Method 对象，到 currentlyInvokedFactoryMethod 中
+            currentlyInvokedFactoryMethod.set(factoryMethod);
+            // 创建 Bean 对象
+            Object result = factoryMethod.invoke(factoryBean, args);
+            // 未创建，则创建 NullBean 对象
+            if (result == null) {
+                result = new NullBean();
+            }
+            return result;
+        } finally {
+            // 设置老的 Method 对象，到 currentlyInvokedFactoryMethod 中
+            if (priorInvokedFactoryMethod != null) {
+                currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
+            } else {
+                currentlyInvokedFactoryMethod.remove();
+            }
+        }
+    // 一大堆 catch 异常
+    } catch (IllegalArgumentException ex) {
+        throw new BeanInstantiationException(factoryMethod,
+                "Illegal arguments to factory method '" + factoryMethod.getName() + "'; " +
+                "args: " + StringUtils.arrayToCommaDelimitedString(args), ex);
+    } catch (IllegalAccessException ex) {
+        throw new BeanInstantiationException(factoryMethod,
+                "Cannot access factory method '" + factoryMethod.getName() + "'; is it public?", ex);
+    } catch (InvocationTargetException ex) {
+        String msg = "Factory method '" + factoryMethod.getName() + "' threw exception";
+        if (bd.getFactoryBeanName() != null && owner instanceof ConfigurableBeanFactory &&
+                ((ConfigurableBeanFactory) owner).isCurrentlyInCreation(bd.getFactoryBeanName())) {
+            msg = "Circular reference involving containing bean '" + bd.getFactoryBeanName() + "' - consider " +
+                    "declaring the factory method as static for independence from its containing instance. " + msg;
+        }
+        throw new BeanInstantiationException(factoryMethod, msg, ex.getTargetException());
+    }
+}
+```
+
+② 如果是构造方法实例化，则是先判断是否有 MethodOverrides，如果没有则是直接使用反射，如果有则就需要 CGLIB 实例化对象。如下：
+
+```java
+// SimpleInstantiationStrategy.java
+
+// 默认构造方法
+@Override
+public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
+	// Don't override the class with CGLIB if no overrides.
+    // 没有覆盖，直接使用反射实例化即可,methodOverrides是在lookup-method 和 replaced-method 属性解析时候增加。
+		// 有上诉两个内容说明要使用cglib代理来处理这块内容。
+    if (!bd.hasMethodOverrides()) {
+		Constructor<?> constructorToUse;
+		synchronized (bd.constructorArgumentLock) {
+		    // 获得构造方法 constructorToUse
+			constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
+			if (constructorToUse == null) {
+				final Class<?> clazz = bd.getBeanClass();
+				// 如果是接口，抛出 BeanInstantiationException 异常
+				if (clazz.isInterface()) {
+					throw new BeanInstantiationException(clazz, "Specified class is an interface");
+				}
+				try {
+				    // 从 clazz 中，获得构造方法
+					if (System.getSecurityManager() != null) { // 安全模式
+						constructorToUse = AccessController.doPrivileged(
+								(PrivilegedExceptionAction<Constructor<?>>) clazz::getDeclaredConstructor);
+					} else {
+						constructorToUse =	clazz.getDeclaredConstructor();
+					}
+					// 标记 resolvedConstructorOrFactoryMethod 属性
+					bd.resolvedConstructorOrFactoryMethod = constructorToUse;
+				} catch (Throwable ex) {
+					throw new BeanInstantiationException(clazz, "No default constructor found", ex);
+				}
+			}
+		}
+        // 通过 BeanUtils 直接使用构造器对象实例化 Bean 对象
+        return BeanUtils.instantiateClass(constructorToUse);
+	} else {
+		// Must generate CGLIB subclass.
+        // 生成 CGLIB 创建的子类对象
+        return instantiateWithMethodInjection(bd, beanName, owner);
+	}
+}
+
+// 指定构造方法
+@Override
+public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
+		final Constructor<?> ctor, Object... args) {
+    // 没有覆盖，直接使用反射实例化即可
+	if (!bd.hasMethodOverrides()) {
+		if (System.getSecurityManager() != null) {
+		    // 设置构造方法，可访问
+			// use own privileged to change accessibility (when security is on)
+			AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+				ReflectionUtils.makeAccessible(ctor);
+				return null;
+			});
+		}
+        // 通过 BeanUtils 直接使用构造器对象实例化 Bean 对象
+		return BeanUtils.instantiateClass(ctor, args);
+	} else {
+        // 生成 CGLIB 创建的子类对象
+		return instantiateWithMethodInjection(bd, beanName, owner, ctor, args);
+	}
+}
+```
+
+- SimpleInstantiationStrategy 对 `#instantiateWithMethodInjection(RootBeanDefinition bd, String beanName, BeanFactory owner, Constructor ctor, Object... args)` 的实现任务交给了子类 CglibSubclassingInstantiationStrategy 。
+
+##### MethodOverrides
+
+重点这块内容为何要区分 实例化的内容一些是直接实例化 一些是通过动态代理的生成方法
+
+对于 MethodOverrides，如果读者是跟着小编文章一路跟过来的话一定不会陌生，在 BeanDefinitionParserDelegate 类解析 `` 的时候是否还记得这两个方法：`#parseLookupOverrideSubElements(...)` 和 `#parseReplacedMethodSubElements(...)` 这两个方法分别用于解析 `lookup-method` 和 `replaced-method` 属性。
+
+其中，`#parseLookupOverrideSubElements(...)` 源码如下：
+
+[![parseLookupOverrideSubElements](asserts/4cdb7d0fafb164c00feb74680948e785)](http://static.iocoder.cn/4cdb7d0fafb164c00feb74680948e785)parseLookupOverrideSubElements
+
+更多关于 `lookup-method` 和 `replaced-method` 请看：[【死磕 Spring】—– IoC 之解析 bean 标签：meta、lookup-method、replace-method](http://svip.iocoder.cn/Spring/IoC-parse-BeanDefinitions-for-meta-and-look-method-and-replace-method)
+
+####  CglibSubclassingInstantiationStrategy
+
+类 CglibSubclassingInstantiationStrategy 为 Spring 实例化 Bean 的默认实例化策略，其主要功能还是对父类功能进行补充：其父类将 CGLIB 的实例化策略委托其实现。
+
+```java
+// SimpleInstantiationStrategy.java
+
+protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
+	throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
+}
+
+// CglibSubclassingInstantiationStrategy.java
+
+@Override
+protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
+	return instantiateWithMethodInjection(bd, beanName, owner, null);
+}
+```
+
+- CglibSubclassingInstantiationStrategy 实例化 Bean 策略，是通过其内部类 **CglibSubclassCreator** 来实现的。代码如下：
+
+  ```
+  // CglibSubclassingInstantiationStrategy.java
+  
+  @Override
+  protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner, @Nullable Constructor<?> ctor, Object... args) {
+  	// Must generate CGLIB subclass...
+      // 通过CGLIB生成一个子类对象
+  	return new CglibSubclassCreator(bd, owner).instantiate(ctor, args);
+  }
+  ```
+
+- 创建 CglibSubclassCreator 实例，然后调用其 `#instantiate(Constructor ctor, Object... args)` 方法，该方法用于动态创建子类实例，同时实现所需要的 lookups（`lookup-method`、`replace-method`）。
+
+  ```
+  // CglibSubclassingInstantiationStrategy.java#CglibSubclassCreator
+  
+  public Object instantiate(@Nullable Constructor<?> ctor, Object... args) {
+      // <x> 通过 Cglib 创建一个代理类
+      Class<?> subclass = createEnhancedSubclass(this.beanDefinition);
+      Object instance;
+      // <y> 没有构造器，通过 BeanUtils 使用默认构造器创建一个bean实例
+      if (ctor == null) {
+          instance = BeanUtils.instantiateClass(subclass);
+      } else {
+          try {
+              // 获取代理类对应的构造器对象，并实例化 bean
+              Constructor<?> enhancedSubclassConstructor = subclass.getConstructor(ctor.getParameterTypes());
+              instance = enhancedSubclassConstructor.newInstance(args);
+          } catch (Exception ex) {
+              throw new BeanInstantiationException(this.beanDefinition.getBeanClass(),
+                      "Failed to invoke constructor for CGLIB enhanced subclass [" + subclass.getName() + "]", ex);
+          }
+      }
+      // SPR-10785: set callbacks directly on the instance instead of in the
+      // enhanced class (via the Enhancer) in order to avoid memory leaks.
+      // 为了避免 memory leaks 异常，直接在 bean 实例上设置回调对象
+      Factory factory = (Factory) instance;
+      factory.setCallbacks(new Callback[] {NoOp.INSTANCE,
+              new LookupOverrideMethodInterceptor(this.beanDefinition, this.owner),
+              new ReplaceOverrideMethodInterceptor(this.beanDefinition, this.owner)});
+      return instance;
+  }
+  ```
+
+  - 在 `` 处，调用 `#createEnhancedSubclass(RootBeanDefinition beanDefinition)` 方法，为提供的 BeanDefinition 创建 bean 类的增强子类。代码如下：
+
+    ```
+    // CglibSubclassingInstantiationStrategy.java#CglibSubclassCreator
+    
+    private Class<?> createEnhancedSubclass(RootBeanDefinition beanDefinition) {
+        // 创建 Enhancer 对象
+        Enhancer enhancer = new Enhancer();
+        // 设置 Bean 类
+        enhancer.setSuperclass(beanDefinition.getBeanClass());
+        // 设置 Spring 的命名策略
+        enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);
+        // 设置生成策略
+        if (this.owner instanceof ConfigurableBeanFactory) {
+            ClassLoader cl = ((ConfigurableBeanFactory) this.owner).getBeanClassLoader();
+            enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(cl));
+        }
+        // 过滤，自定义逻辑来指定调用的callback下标
+        enhancer.setCallbackFilter(new MethodOverrideCallbackFilter(beanDefinition));
+        enhancer.setCallbackTypes(CALLBACK_TYPES);
+        return enhancer.createClass();
+    }
+    ```
+
+    - CGLIB 的标准 API 的使用。
+
+  - `` 处，获取子类增强 `subclass` 后，如果 Constructor 实例 `ctr` 为空，则调用默认构造函数（`BeanUtils#instantiateClass(subclass)`）来实例化类，否则则根据构造函数类型获取具体的构造器，调用 `Constructor#newInstance(args)` 方法来实例化类。
+
+##### MethodOverrideCallbackFilter
+
+在 `` 处调用的 `#createEnhancedSubclass(RootBeanDefinition beanDefinition)` 方法，我们注意两行代码：
+
+```
+// CglibSubclassingInstantiationStrategy.java#CglibSubclassCreator
+
+enhancer.setCallbackFilter(new MethodOverrideCallbackFilter(beanDefinition));
+enhancer.setCallbackTypes(CALLBACK_TYPES);
+```
+
+- 通过 MethodOverrideCallbackFilter 来定义调用 callback 类型。
+
+MethodOverrideCallbackFilter 是用来定义 CGLIB 回调过滤方法的拦截器行为，它继承 CglibIdentitySupport 实现 CallbackFilter 接口。
+
+- CallbackFilter 是 CGLIB 的一个回调过滤器。
+- CglibIdentitySupport 则为 CGLIB 提供 `#hashCode()` 和 `#equals(Object o)` 方法，以确保 CGLIB 不会为每个 Bean 生成不同的类。
+
+MethodOverrideCallbackFilter 实现 CallbackFilter 的 `#accept(Method method)` 方法，代码如下：
+
+```
+// CglibSubclassingInstantiationStrategy.java#MethodOverrideCallbackFilter
+
+@Override
+public int accept(Method method) {
+	MethodOverride methodOverride = getBeanDefinition().getMethodOverrides().getOverride(method);
+	if (logger.isTraceEnabled()) {
+		logger.trace("Override for '" + method.getName() + "' is [" + methodOverride + "]");
+	}
+	if (methodOverride == null) {
+		return PASSTHROUGH;
+	} else if (methodOverride instanceof LookupOverride) {
+		return LOOKUP_OVERRIDE;
+	} else if (methodOverride instanceof ReplaceOverride) {
+		return METHOD_REPLACER;
+	}
+	throw new UnsupportedOperationException("Unexpected MethodOverride subclass: " +
+			methodOverride.getClass().getName());
+}
+```
+
+- 根据 BeanDefinition 中定义的 MethodOverride 不同，返回不同的值， 这里返回的 `PASSTHROUGH` 、`LOOKUP_OVERRIDE`、`METHOD_REPLACER` 都是 Callback 数组的**下标**，这里对应的数组为 `CALLBACK_TYPES` 数组，如下：
+
+  ```
+  // CglibSubclassingInstantiationStrategy.java#CglibSubclassCreator
+  
+  private static final Class<?>[] CALLBACK_TYPES = new Class<?>[] {
+      NoOp.class,
+      LookupOverrideMethodInterceptor.class,
+      ReplaceOverrideMethodInterceptor.class
+  };
+  ```
+
+  - 这里又定义了两个熟悉的拦截器 ：LookupOverrideMethodInterceptor 和 ReplaceOverrideMethodInterceptor，两个拦截器分别对应两个不同的 callback 业务。详细解析，见 [「4.2 LookupOverrideMethodInterceptor」](http://svip.iocoder.cn/Spring/IoC-InstantiationStrategy/#) 和 [「4.3 ReplaceOverrideMethodInterceptor」](http://svip.iocoder.cn/Spring/IoC-InstantiationStrategy/#) 中。
+
+##### LookupOverrideMethodInterceptor
+
+```
+// CglibSubclassingInstantiationStrategy.java#LookupOverrideMethodInterceptor
+
+private static class LookupOverrideMethodInterceptor extends CglibIdentitySupport implements MethodInterceptor {
+
+    private final BeanFactory owner;
+
+    public LookupOverrideMethodInterceptor(RootBeanDefinition beanDefinition, BeanFactory owner) {
+        super(beanDefinition);
+        this.owner = owner;
+    }
+
+    @Override
+    public Object intercept(Object obj, Method method, Object[] args, MethodProxy mp) throws Throwable {
+        // Cast is safe, as CallbackFilter filters are used selectively.
+        // 获得 method 对应的 LookupOverride 对象
+        LookupOverride lo = (LookupOverride) getBeanDefinition().getMethodOverrides().getOverride(method);
+        Assert.state(lo != null, "LookupOverride not found");
+        // 获得参数
+        Object[] argsToUse = (args.length > 0 ? args : null);  // if no-arg, don't insist on args at all
+        // 获得 Bean
+        if (StringUtils.hasText(lo.getBeanName())) { // Bean 的名字
+            return (argsToUse != null ? this.owner.getBean(lo.getBeanName(), argsToUse) :
+                    this.owner.getBean(lo.getBeanName()));
+        } else { // Bean 的类型
+            return (argsToUse != null ? this.owner.getBean(method.getReturnType(), argsToUse) :
+                    this.owner.getBean(method.getReturnType()));
+        }
+    }
+}
+```
+
+##### ReplaceOverrideMethodInterceptor
+
+```
+// CglibSubclassingInstantiationStrategy.java#ReplaceOverrideMethodInterceptor
+
+private static class ReplaceOverrideMethodInterceptor extends CglibIdentitySupport implements MethodInterceptor {
+
+    private final BeanFactory owner;
+
+    public ReplaceOverrideMethodInterceptor(RootBeanDefinition beanDefinition, BeanFactory owner) {
+        super(beanDefinition);
+        this.owner = owner;
+    }
+
+    @Override
+    public Object intercept(Object obj, Method method, Object[] args, MethodProxy mp) throws Throwable {
+        // 获得 method 对应的 LookupOverride 对象
+        ReplaceOverride ro = (ReplaceOverride) getBeanDefinition().getMethodOverrides().getOverride(method);
+        Assert.state(ro != null, "ReplaceOverride not found");
+        // TODO could cache if a singleton for minor performance optimization
+        // 获得 MethodReplacer 对象
+        MethodReplacer mr = this.owner.getBean(ro.getMethodReplacerBeanName(), MethodReplacer.class);
+        // 执行替换
+        return mr.reimplement(obj, method, args);
+    }
+}
+```
+
+CGLIB是直接继承方式的代理，接口是通过实现，把原有的类组合在里面(3个角色 一个是 实现类 一个接口，一个代理)。
+
+两个总体来说都市通过实现/继承，组合方式来处理
+
+### 15.  BeanDefinition 注册表：BeanDefinitionRegistry
+
+将定义 Bean 的资源文件解析成 BeanDefinition 后需要将其注入容器中，这个过程由 BeanDefinitionRegistry 来完成。
+
+**BeanDefinitionRegistry：向注册表中注册 BeanDefinition 实例，完成注册的过程。**
+
+下图是 BeanDefinitionRegistry 类结构图：
+
+[![BeanDefinitionRegistry 类图](asserts/c91d5c1d310f4257bb0edae3444e7cd9)](http://static.iocoder.cn/c91d5c1d310f4257bb0edae3444e7cd9)BeanDefinitionRegistry 类图
+
+BeanDefinitionRegistry 继承了 AliasRegistry 接口，其核心子类有三个：SimpleBeanDefinitionRegistry、DefaultListableBeanFactory、GenericApplicationContext 。
+
+#### AliasRegistry
+
+**用于别名管理的通用型接口，作为 BeanDefinitionRegistry 的顶层接口。** AliasRegistry 定义了一些别名管理的方法。
+
+```java
+// AliasRegistry.java
+
+public interface AliasRegistry {
+
+    void registerAlias(String name, String alias);
+    void removeAlias(String alias);
+
+    boolean isAlias(String name);
+    String[] getAliases(String name);
+
+}
+```
+
+#### 2. BeanDefinitionRegistry
+
+**BeanDefinition 的注册接口，如 RootBeanDefinition 和 ChildBeanDefinition。它通常由 BeanFactories 实现，在 Spring 中已知的实现者为：DefaultListableBeanFactory 和 GenericApplicationContext。BeanDefinitionRegistry 是 Spring 的 Bean 工厂包中唯一封装 BeanDefinition 注册的接口。**
+
+BeanDefinitionRegistry 接口定义了关于 BeanDefinition 注册、注销、查询等一系列的操作。
+
+```java
+// BeanDefinitionRegistry.java
+
+    public interface BeanDefinitionRegistry extends AliasRegistry {
+
+    // 往注册表中注册一个新的 BeanDefinition 实例
+    void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
+
+    // 移除注册表中已注册的 BeanDefinition 实例
+    void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
+
+    // 从注册中取得指定的 BeanDefinition 实例
+    BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
+
+    // 判断 BeanDefinition 实例是否在注册表中（是否注册）
+    boolean containsBeanDefinition(String beanName);
+
+    // 取得注册表中所有 BeanDefinition 实例的 beanName（标识）
+    String[] getBeanDefinitionNames();
+
+    // 返回注册表中 BeanDefinition 实例的数量
+    int getBeanDefinitionCount();
+
+    // beanName（标识）是否被占用
+    boolean isBeanNameInUse(String beanName);
+
+}
+```
+
+#### 3. SimpleBeanDefinitionRegistry
+
+```java
+public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
+   throws BeanDefinitionStoreException {
+	Assert.hasText(beanName, "'beanName' must not be empty");
+	Assert.notNull(beanDefinition, "BeanDefinition must not be null");
+	this.beanDefinitionMap.put(beanName, beanDefinition);
+}
+
+@Override
+public void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
+	if (this.beanDefinitionMap.remove(beanName) == null) {
+		throw new NoSuchBeanDefinitionException(beanName);
+	}
+}
+
+@Override
+public BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
+	BeanDefinition bd = this.beanDefinitionMap.get(beanName);
+	if (bd == null) {
+		throw new NoSuchBeanDefinitionException(beanName);
+	}
+	return bd;
+}
+```
+
+实现简单、粗暴。
+
+#### 4.DefaultListableBeanFactory
+
+**DefaultListableBeanFactory，ConfigurableListableBeanFactory（其实就是 BeanFactory ） 和 BeanDefinitionRegistry 接口的默认实现：一个基于 BeanDefinition 元数据的完整 bean 工厂**。所以相对于 SimpleBeanDefinitionRegistry 而言，DefaultListableBeanFactory 则是一个具有注册功能的完整 Bean 工厂。它同样是用 ConcurrentHashMap 数据结构来存储注册的 BeanDefinition 。
+
+```java
+// DefaultListableBeanFactory.java
+
+// 注册表，由 BeanDefinition 的标识 （beanName） 与其实例组成
+private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, bean>(64);
+
+// 标识（beanName）集合
+private final List<String> beanDefinitionNames = new ArrayList<String>(64);
+```
+
+##### 4.1registerBeanDefinition
+
+比较简单就是对map的一个注册内容
+
+#### 5. GenericApplicationContext
+
+对于类 GenericApplicationContext ，查看源码你会发现他实现注册、注销功能都是委托 DefaultListableBeanFactory 实现的。简化代码如下：
+
+```java
+// GenericApplicationContext.java
+
+private final DefaultListableBeanFactory beanFactory;
+
+@Override
+public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
+		throws BeanDefinitionStoreException {
+
+	this.beanFactory.registerBeanDefinition(beanName, beanDefinition);
+}
+
+@Override
+public void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
+	this.beanFactory.removeBeanDefinition(beanName);
+}
+
+// ... 省略其它 N 多方法
+```
+
+#### 小结
+
+所以 BeanDefinition 注册并不是非常高大上的功能，内部就是用一个 Map 实现 ，并不是多么高大上的骚操作，所以有时候我们会潜意识地认为某些技术很高大上就觉得他很深奥，如果试着去一探究竟你会发现，原来这么简单。虽然 BeanDefinitionRegistry 实现简单，但是它作为 Spring IOC 容器的核心接口，其地位还是很重的.
+
+### 16. 环境相关类
+
+Spring 环境 & 属性由四个部分组成：PropertySource、PropertyResolver、Profile 和 Environment。
+
+- PropertySource：属性**源**，key-value 属性对抽象，用于配置数据。
+- PropertyResolver：属性**解析器**，用于解析属性配置
+- Profile：剖面，只有激活的剖面的组件/配置才会注册到 Spring 容器，类似于 Spring Boot 中的 profile 。
+- Environment：环境，Profile 和 PropertyResolver 的组合。
+
+下面是整个体系的结构图：
+
+[![整体类图](asserts/0f22156c0d3d902cf4cf196c2b94aaa5)](http://static.iocoder.cn/0f22156c0d3d902cf4cf196c2b94aaa5)整体类图
+
+下面就针对上面结构图对 Spring 的 Properties & Environment 做一个详细的分析。
+
+#### PropertyResolver
+
+属性解析器，用于解析任何基础源的属性的接口
+
+```java
+// PropertyResolver.java
+
+public interface PropertyResolver {
+
+    // 是否包含某个属性
+    boolean containsProperty(String key);
+
+    // 获取属性值 如果找不到返回null
+    @Nullable
+    String getProperty(String key);
+    // 获取属性值，如果找不到返回默认值
+    String getProperty(String key, String defaultValue);
+    // 获取指定类型的属性值，找不到返回null
+    @Nullable
+    <T> T getProperty(String key, Class<T> targetType);
+    // 获取指定类型的属性值，找不到返回默认值
+    <T> T getProperty(String key, Class<T> targetType, T defaultValue);
+
+    // 获取属性值，找不到抛出异常IllegalStateException
+    String getRequiredProperty(String key) throws IllegalStateException;
+    // 获取指定类型的属性值，找不到抛出异常IllegalStateException
+    <T> T getRequiredProperty(String key, Class<T> targetType) throws IllegalStateException;
+
+    // 替换文本中的占位符（${key}）到属性值，找不到不解析，text是一整段话的入参
+    String resolvePlaceholders(String text);
+    // 替换文本中的占位符（${key}）到属性值，找不到抛出异常IllegalArgumentException
+    String resolveRequiredPlaceholders(String text) throws IllegalArgumentException;
+
+}
+```
+
+从 API 上面我们就知道属性解析器 PropertyResolver 的作用了。下面是一个简单的运用。
+
+```java
+PropertyResolver propertyResolver = new PropertySourcesPropertyResolver(propertySources);
+
+System.out.println(propertyResolver.getProperty("name"));
+System.out.println(propertyResolver.getProperty("name", "chenssy"));
+System.out.println(propertyResolver.resolvePlaceholders("my name is  ${name}"));
+```
+
+下图是 PropertyResolver 体系结构图：
+
+![img](asserts/201810241001.png)
+
+- ConfigurablePropertyResolver：供属性类型转换的功能
+- AbstractPropertyResolver：解析属性文件的抽象基类
+- PropertySourcesPropertyResolver：PropertyResolver 的实现者，他对一组 PropertySources 提供属性解析服务
+
+#### ConfigurablePropertyResolver
+
+提供属性类型转换的功能,通俗点说就是 ConfigurablePropertyResolver 提供属性值类型转换所需要的 ConversionService。代码如下：
+
+```java
+// ConfigurablePropertyResolver.java
+
+public interface ConfigurablePropertyResolver extends PropertyResolver {
+
+    // 返回执行类型转换时使用的 ConfigurableConversionService
+    ConfigurableConversionService getConversionService();
+    // 设置 ConfigurableConversionService
+    void setConversionService(ConfigurableConversionService conversionService);
+
+    // 设置占位符前缀
+    void setPlaceholderPrefix(String placeholderPrefix);
+    // 设置占位符后缀
+    void setPlaceholderSuffix(String placeholderSuffix);
+    // 设置占位符与默认值之间的分隔符
+    void setValueSeparator(@Nullable String valueSeparator);
+
+    // 设置当遇到嵌套在给定属性值内的不可解析的占位符时是否抛出异常
+    // 当属性值包含不可解析的占位符时，getProperty(String)及其变体的实现必须检查此处设置的值以确定正确的行为。
+    void setIgnoreUnresolvableNestedPlaceholders(boolean ignoreUnresolvableNestedPlaceholders);
+
+    // 指定必须存在哪些属性，以便由validateRequiredProperties（）验证
+    void setRequiredProperties(String... requiredProperties);
+
+    // 验证setRequiredProperties指定的每个属性是否存在并解析为非null值
+    void validateRequiredProperties() throws MissingRequiredPropertiesException;
+
+}
+```
+
+- 从 ConfigurablePropertyResolver 所提供的方法来看，除了访问和设置 ConversionService 外，主要还提供了一些解析规则之类的方法。
+
+就 Properties 体系而言，PropertyResolver 定义了访问 Properties 属性值的方法，而 ConfigurablePropertyResolver 则定义了解析 Properties 一些相关的规则和值进行类型转换所需要的 Service。
+
+该体系有两个实现者：AbstractPropertyResolver 和 PropertySourcesPropertyResolver，其中 AbstractPropertyResolver 为实现的抽象基类，PropertySourcesPropertyResolver 为真正的实现者。
+
+#### AbstractPropertyResolver
+
+AbstractPropertyResolver 作为基类它仅仅只是设置了一些解析属性文件**所需要配置或者转换器**，如 `#setConversionService(...)`、`#setPlaceholderPrefix(...)`、`#setValueSeparator(...)` 。其实这些方法的实现都比较简单，都是设置或者获取 AbstractPropertyResolver 所提供的属性，代码如下：
+
+```java
+// AbstractPropertyResolver.java
+
+// 类型转换去
+private volatile ConfigurableConversionService conversionService;
+// 占位符
+private PropertyPlaceholderHelper nonStrictHelper;
+//
+private PropertyPlaceholderHelper strictHelper;
+// 设置是否抛出异常
+private boolean ignoreUnresolvableNestedPlaceholders = false;
+// 占位符前缀
+private String placeholderPrefix = SystemPropertyUtils.PLACEHOLDER_PREFIX;
+// 占位符后缀
+private String placeholderSuffix = SystemPropertyUtils.PLACEHOLDER_SUFFIX;
+// 与默认值的分割
+private String valueSeparator = SystemPropertyUtils.VALUE_SEPARATOR;
+// 必须要有的字段值
+private final Set<String> requiredProperties = new LinkedHashSet<>();
+```
+
+这些属性都是 ConfigurablePropertyResolver 接口所提供方法需要的属性，他所提供的方法都是设置和读取这些值，如下几个方法：
+
+```java
+// AbstractPropertyResolver.java
+
+public ConfigurableConversionService getConversionService() {
+    // 需要提供独立的DefaultConversionService，而不是PropertySourcesPropertyResolver 使用的共享DefaultConversionService。
+    ConfigurableConversionService cs = this.conversionService;
+    if (cs == null) {
+        synchronized (this) {
+            cs = this.conversionService;
+            if (cs == null) {
+                cs = new DefaultConversionService();
+                this.conversionService = cs;
+            }
+        }
+    }
+    return cs;
+}
+
+@Override
+public void setConversionService(ConfigurableConversionService conversionService) {
+    Assert.notNull(conversionService, "ConversionService must not be null");
+    this.conversionService = conversionService;
+}
+
+public void setPlaceholderPrefix(String placeholderPrefix) {
+    Assert.notNull(placeholderPrefix, "'placeholderPrefix' must not be null");
+    this.placeholderPrefix = placeholderPrefix;
+}
+
+public void setPlaceholderSuffix(String placeholderSuffix) {
+    Assert.notNull(placeholderSuffix, "'placeholderSuffix' must not be null");
+    this.placeholderSuffix = placeholderSuffix;
+}
+```
+
+而对属性的访问，则委托给子类 PropertySourcesPropertyResolver 实现。
+
+```java
+// AbstractPropertyResolver.java
+
+public String getProperty(String key) {
+    return getProperty(key, String.class);
+}
+
+public String getProperty(String key, String defaultValue) {
+    String value = getProperty(key);
+    return (value != null ? value : defaultValue);
+}
+
+public <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
+    T value = getProperty(key, targetType);
+    return (value != null ? value : defaultValue);
+}
+
+public String getRequiredProperty(String key) throws IllegalStateException {
+    String value = getProperty(key);
+    if (value == null) {
+        throw new IllegalStateException("Required key '" + key + "' not found");
+    }
+    return value;
+}
+
+public <T> T getRequiredProperty(String key, Class<T> valueType) throws IllegalStateException {
+    T value = getProperty(key, valueType);
+    if (value == null) {
+        throw new IllegalStateException("Required key '" + key + "' not found");
+    }
+    return value;
+}
+```
+
+#### PropertySourcesPropertyResolver
+
+PropertyResolver 的实现者，他对一组 PropertySources 提供属性解析服务。
+
+它仅有一个成员变量：PropertySources 。该成员变量内部存储着一组 PropertySource，表示 key-value 键值对的源的抽象基类，即一个 PropertySource 对象则是一个 key-value 键值对。PropertySource 的代码如下：
+
+```java
+// PropertySource.java
+
+public abstract class PropertySource<T> {
+
+    protected final Log logger = LogFactory.getLog(getClass());
+
+    protected final String name;
+    protected final T source;
+
+    // ...
+
+}
+```
+
+PropertySourcesPropertyResolver 对外公开的 `#getProperty(...)` 方法，都是委托给 `#getProperty(String key, Class targetValueType, boolean resolveNestedPlaceholders)` 方法实现，他有三个参数，分别表示为：
+
+- `key` ：获取的 key 。
+- `targetValueType` ： 目标 value 的类型。
+- `resolveNestedPlaceholders` ：是否解决嵌套占位符。
+
+```java
+// PropertySourcesPropertyResolver.java
+protected <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
+		if (this.propertySources != null) {
+			// 遍历 propertySources 数组
+			for (PropertySource<?> propertySource : this.propertySources) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Searching for key '" + key + "' in PropertySource '" +
+							propertySource.getName() + "'");
+				}
+				// 获得 key 对应的 value 值
+				Object value = propertySource.getProperty(key);
+				if (value != null) {
+					// 如果解决嵌套占位符，解析占位符
+					if (resolveNestedPlaceholders && value instanceof String) {
+						value = resolveNestedPlaceholders((String) value);
+					}
+					// 如果未找到 key 对应的值，则打印日志
+					logKeyFound(key, propertySource, value);
+					// 如果未找到 key 对应的值，则打印日志
+					return convertValueIfNecessary(value, targetValueType);
+				}
+			}
+		}
+		if (logger.isTraceEnabled()) {
+			logger.trace("Could not find key '" + key + "' in any property source");
+		}
+		return null;
+	}
+```
+
+##### resolveNestedPlaceholders
+
+##### convertValueIfNecessary
+
+`#convertValueIfNecessary(Object value, Class targetType)` 方法，是不是感觉到非常的熟悉，该方法就是完成类型转换的。代码如下：
+
+```java
+// AbstractPropertyResolver.java
+
+@Nullable
+protected <T> T convertValueIfNecessary(Object value, @Nullable Class<T> targetType) {
+	if (targetType == null) {
+		return (T) value;
+	}
+	ConversionService conversionServiceToUse = this.conversionService;
+	if (conversionServiceToUse == null) {
+		// Avoid initialization of shared DefaultConversionService if
+		// no standard type conversion is needed in the first place...
+		if (ClassUtils.isAssignableValue(targetType, value)) {
+			return (T) value;
+		}
+		conversionServiceToUse = DefaultConversionService.getSharedInstance();
+	}
+	// 执行转换
+	return conversionServiceToUse.convert(value, targetType);
+}
+```
+
+- 首先，获取类型转换服务 `conversionService` 。若为空，则判断是否可以通过反射来设置，如果可以则直接强转返回，否则构造一个 DefaultConversionService 实例。
+- 最后调用其 `#convert(Object source, Class targetType)` 方法，完成类型转换
+
+#### Environment
+
+表示当前应用程序正在运行的环境
+
+应用程序的环境有两个关键方面：profile 和 properties。
+
+- properties 的方法由 PropertyResolver 定义。
+- profile 则表示当前的运行环境，对于应用程序中的 properties 而言，并不是所有的都会加载到系统中，只有其属性与 profile 一直才会被激活加载
+
+所以 Environment 对象的作用，是确定哪些配置文件（如果有）当前处于活动状态，以及默认情况下哪些配置文件（如果有）应处于活动状态。properties 在几乎所有应用程序中都发挥着重要作用，并且有多种来源：属性文件，JVM 系统属性，系统环境变量，JNDI，servlet 上下文参数，ad-hoc 属性对象，映射等。同时它继承 PropertyResolver 接口，所以与属性相关的 Environment 对象其主要是为用户提供方便的服务接口，用于配置属性源和从中属性源中解析属性。
+
+![Environment 类图](asserts/ab5f2dc7cf389534866cc96f1dcf7048)
+
+- PropertyResolver：提供属性访问功能
+- Environment：提供访问和判断 profiles 的功能
+- ConfigurableEnvironment：提供设置激活的 profile 和默认的 profile 的功能以及操作 Properties 的工具
+- ConfigurableWebEnvironment：提供配置 Servlet 上下文和 Servlet 参数的功能
+- AbstractEnvironment：实现了 ConfigurableEnvironment 接口，默认属性和存储容器的定义，并且实现了 ConfigurableEnvironment 的方法，并且为子类预留可覆盖了扩展方法
+- StandardEnvironment：继承自 AbstractEnvironment ，非 Servlet(Web) 环境下的标准 Environment 实现
+- StandardServletEnvironment：继承自 StandardEnvironment ，Servlet(Web) 环境下的标准 Environment 实现
+
+##### ConfigurableEnvironment
+
+> 提供设置激活的 profile 和默认的 profile 的功能以及操作 Properties 的工具
+
+该类除了继承 Environment 接口外还继承了 ConfigurablePropertyResolver 接口，所以它即具备了设置 profile 的功能也具备了操作 Properties 的功能。同时还允许客户端通过它设置和验证所需要的属性，自定义转换服务等功能。如下：
+
+```java
+// ConfigurableEnvironment.java
+
+public interface ConfigurableEnvironment extends Environment, ConfigurablePropertyResolver {
+
+    // 指定该环境下的 profile 集
+    void setActiveProfiles(String... profiles);
+    // 增加此环境的 profile
+    void addActiveProfile(String profile);
+    // 设置默认的 profile
+    void setDefaultProfiles(String... profiles);
+
+    // 返回此环境的 PropertySources
+    MutablePropertySources getPropertySources();
+   // 尝试返回 System.getenv() 的值，若失败则返回通过 System.getenv(string) 的来访问各个键的映射
+    Map<String, Object> getSystemEnvironment();
+    // 尝试返回 System.getProperties() 的值，若失败则返回通过 System.getProperties(string) 的来访问各个键的映射
+    Map<String, Object> getSystemProperties();
+
+    void merge(ConfigurableEnvironment parent);
+}
+```
+
+#### AbstractEnvironment
+
+Environment 的基础实现，
+
+允许通过设置 `ACTIVE_PROFILES_PROPERTY_NAME` 和`DEFAULT_PROFILES_PROPERTY_NAME` 属性指定活动和默认配置文件。子类的主要区别在于它们默认添加的 PropertySource 对象。而 AbstractEnvironment 则没有添加任何内容。
+
+![image-20210710161001134](asserts/image-20210710161001134.png)
+
+### 17. ApplicationContext 相关接口架构分析
+
+﻿在前面 40 篇博客中都是基于 BeanFactory 这个容器来进行分析的，BeanFactory 容器有点儿简单，它并不适用于我们生产环境，在生产环境我们通常会选择 ApplicationContext ，相对于大多数人而言，它才是正规军，相比于 BeanFactory 这个杂牌军而言，它由如下几个区别：
+
+1. 继承 MessageSource，提供国际化的标准访问策略。
+2. 继承 ApplicationEventPublisher ，提供强大的事件机制。
+3. 扩展 ResourceLoader，可以用来加载多个 Resource，可以灵活访问不同的资源。
+4. 对 Web 应用的支持。
+
+#### 接口图
+
+![ApplicationContext 结构类图](asserts/3a0321713096156d42661f2df11a93c2)
+
+- **BeanFactory**：Spring 管理 Bean 的顶层接口，我们可以认为他是一个简易版的 Spring 容器。ApplicationContext 继承 BeanFactory 的两个子类：HierarchicalBeanFactory 和 ListableBeanFactory。HierarchicalBeanFactory 是一个具有层级关系的 BeanFactory，拥有属性 `parentBeanFactory` 。**ListableBeanFactory 实现了枚举方法可以列举出当前 BeanFactory 中所有的 bean 对象而不必根据 name 一个一个的获取。**
+- **ApplicationEventPublisher**：用于封装事件发布功能的接口，向事件监听器（Listener）发送事件消息。
+- **ResourceLoader**：Spring 加载资源的顶层接口，用于从一个源加载资源文件。ApplicationContext 继承 ResourceLoader 的子类 ResourcePatternResolver，该接口是将 location 解析为 Resource 对象的策略接口。
+- **MessageSource**：解析 message 的策略接口，用不支撑国际化等功能。
+- **EnvironmentCapable**：用于获取 Environment 的接口。
+
+#### ApplicationContext 子接口
+
+#####  WebApplicationContext
+
+```java
+// WebApplicationContext.java
+
+public interface WebApplicationContext extends ApplicationContext {
+
+    ServletContext getServletContext();
+
+}
+```
+
+该接口只有一个 `#getServletContext()` 方法，用于给 Servlet 提供上下文信息。
+
+##### ConfigurableApplicationContext
+
+```java
+// ConfigurableApplicationContext.java
+
+public interface ConfigurableApplicationContext extends ApplicationContext, Lifecycle, Closeable {
+
+    // 为 ApplicationContext 设置唯一 ID
+    void setId(String id);
+
+    // 为 ApplicationContext 设置 parent
+    // 父类不应该被修改：如果创建的对象不可用时，则应该在构造函数外部设置它
+    void setParent(@Nullable ApplicationContext parent);
+
+    // 设置 Environment
+    void setEnvironment(ConfigurableEnvironment environment);
+
+    // 获取 Environment
+    @Override
+    ConfigurableEnvironment getEnvironment();
+
+    // 添加 BeanFactoryPostProcessor
+    void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor);
+
+    // 添加 ApplicationListener
+    void addApplicationListener(ApplicationListener<?> listener);
+
+    // 添加 ProtocolResolver
+    void addProtocolResolver(ProtocolResolver resolver);
+
+    // 加载或者刷新配置
+    // 这是一个非常重要的方法
+    void refresh() throws BeansException, IllegalStateException;
+
+    // 注册 shutdown hook
+    void registerShutdownHook();
+
+    // 关闭 ApplicationContext
+    @Override
+    void close();
+
+    // ApplicationContext 是否处于激活状态
+    boolean isActive();
+
+    // 获取当前上下文的 BeanFactory
+    ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException;
+
+}
+```
+
+从上面代码可以看到 ConfigurableApplicationContext 接口提供的方法都是对 ApplicationContext 进行配置的，例如 `#setEnvironment(ConfigurableEnvironment environment)`、`#addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor)`，同时它还继承了如下两个接口：
+
+- Lifecycle：对 context 生命周期的管理，它提供 `#start()` 和 `#stop()` 方法启动和暂停组件。
+- Closeable：标准 JDK 所提供的一个接口，用于最后关闭组件释放资源等。
+
+##### ConfigurableWebApplicationContext 
+
+WebApplicationContext 接口和 ConfigurableApplicationContext 接口有一个共同的子类接口 ConfigurableWebApplicationContext，该接口将这两个接口进行合并，提供了一个可配置、可管理、可关闭的 WebApplicationContext ，同时该接口还增加了 `#setServletContext(ServletContext servletContext)`，`setServletConfig(ServletConfig servletConfig)` 等方法，用于装配 WebApplicationContext 。代码如下：
+
+```java
+// ConfigurableWebApplicationContext.java
+
+public interface ConfigurableWebApplicationContext extends WebApplicationContext, ConfigurableApplicationContext {
+
+    void setServletContext(@Nullable ServletContext servletContext);
+
+    void setServletConfig(@Nullable ServletConfig servletConfig);
+    ServletConfig getServletConfig();
+
+    void setNamespace(@Nullable String namespace);
+    String getNamespace();
+
+    void setConfigLocation(String configLocation);
+    void setConfigLocations(String... configLocations);
+    String[] getConfigLocations();
+
+}
+```
+
+上面三个接口就可以构成一个比较完整的 Spring 容器，整个 Spring 容器体系涉及的接口较多，所以下面小编就一个具体的实现类来看看 ApplicationContext 的实现（其实在前面一系列的文章中，小编对涉及的大部分接口都已经分析了其原理），当然不可能每个方法都涉及到，但小编会把其中最为重要的实现方法贴出来分析。ApplicationContext 的实现类较多，**就以 ClassPathXmlApplicationContext 来分析 ApplicationContext**。
+
+#### ClassPathXmlApplicationContext
+
+ClassPathXmlApplicationContext 是我们在学习 Spring 过程中用的非常多的一个类，很多人第一个接触的 Spring 容器就是它，包括小编自己，下面代码我想很多人依然还记得吧。
+
+```java
+// 示例
+ApplicationContext ac = new ClassPathXmlApplicationContext("applicationContext.xml");
+StudentService studentService = (StudentService)ac.getBean("studentService");
+```
+
+下图是 ClassPathXmlApplicationContext 的结构类图：
+
+![image-20210710163828374](asserts/image-20210710163828374.png)
+
+主要的的类层级关系如下：
+
+```java
+org.springframework.context.support.AbstractApplicationContext
+      org.springframework.context.support.AbstractRefreshableApplicationContext
+            org.springframework.context.support.AbstractRefreshableConfigApplicationContext
+                  org.springframework.context.support.AbstractXmlApplicationContext
+                        org.springframework.context.support.ClassPathXmlApplicationContext
+```
+
+这种设计是模板方法模式典型的应用，AbstractApplicationContext 实现了 ConfigurableApplicationContext 这个全家桶接口，其子类 AbstractRefreshableConfigApplicationContext 又实现了 BeanNameAware 和 InitializingBean 接口。所以 ClassPathXmlApplicationContext 设计的顶级接口有：
+
+```
+BeanFactory：Spring 容器 Bean 的管理
+MessageSource：管理 message ，实现国际化等功能
+ApplicationEventPublisher：事件发布
+ResourcePatternResolver：资源加载
+EnvironmentCapable：系统 Environment（profile + Properties） 相关
+Lifecycle：管理生命周期
+Closable：关闭，释放资源
+InitializingBean：自定义初始化
+BeanNameAware：设置 beanName 的 Aware 接口
+```
+
+下面就这些接口来一一分析。
+
+##### MessageSource
+
+MessageSource 定义了获取 message 的策略方法 `#getMessage(...)` 。
+在 ApplicationContext 体系中，该方法由 AbstractApplicationContext 实现。
+在 AbstractApplicationContext 中，它持有一个 MessageSource 实例，将 `#getMessage(...)` 方法委托给该实例来实现，代码如下：
+
+```java
+// AbstractApplicationContext.java
+
+private MessageSource messageSource;
+
+// 实现 getMessage()
+public String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, Locale locale) {
+    // 委托给 messageSource 实现
+    return getMessageSource().getMessage(code, args, defaultMessage, locale);
+}
+
+private MessageSource getMessageSource() throws IllegalStateException {
+    if (this.messageSource == null) {
+        throw new IllegalStateException("MessageSource not initialized - " + "call 'refresh' before accessing messages via the context: " + this);
+    }
+    return this.messageSource;
+}
+```
+
+- 真正实现逻辑，是在 AbstractMessageSource 中，代码如下：
+
+  ```java
+  // AbstractMessageSource.java
+  
+  public final String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, Locale locale) {
+      String msg = getMessageInternal(code, args, locale);
+      if (msg != null) {
+          return msg;
+      }
+      if (defaultMessage == null) {
+          return getDefaultMessage(code);
+      }
+      return renderDefaultMessage(defaultMessage, args, locale);
+  }
+  ```
+
+  - 具体的实现这里就不分析了，有兴趣的小伙伴可以自己去深入研究。
+
+##### ApplicationEventPublisher
+
+ApplicationEventPublisher ，用于封装事件发布功能的接口，向事件监听器（Listener）发送事件消息。
+
+该接口提供了一个 `#publishEvent(Object event, ...)` 方法，用于通知在此应用程序中注册的所有的监听器。该方法在 AbstractApplicationContext 中实现。
+
+```java
+// AbstractApplicationContext.java
+
+@Override
+public void publishEvent(ApplicationEvent event) {
+    publishEvent(event, null);
+}
+
+@Override
+public void publishEvent(Object event) {
+    publishEvent(event, null);
+}
+
+protected void publishEvent(Object event, @Nullable ResolvableType eventType) {
+    Assert.notNull(event, "Event must not be null");
+
+    // Decorate event as an ApplicationEvent if necessary
+    ApplicationEvent applicationEvent;
+    if (event instanceof ApplicationEvent) {
+        applicationEvent = (ApplicationEvent) event;
+    } else {
+        applicationEvent = new PayloadApplicationEvent<>(this, event);
+        if (eventType == null) {
+            eventType = ((PayloadApplicationEvent) applicationEvent).getResolvableType();
+        }
+    }
+
+    // Multicast right now if possible - or lazily once the multicaster is initialized
+    if (this.earlyApplicationEvents != null) {
+        this.earlyApplicationEvents.add(applicationEvent);
+    } else {
+        getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
+    }
+
+    // Publish event via parent context as well...
+    if (this.parent != null) {
+        if (this.parent instanceof AbstractApplicationContext) {
+            ((AbstractApplicationContext) this.parent).publishEvent(event, eventType);
+        } else {
+            this.parent.publishEvent(event);
+        }
+    }
+}
+```
+
+- 如果指定的事件不是 ApplicationEvent，则它将包装在PayloadApplicationEvent 中。
+- 如果存在父级 ApplicationContext ，则同样要将 event 发布给父级 ApplicationContext 
+
+##### ResourcePatternResolver
+
+ResourcePatternResolver 接口继承 ResourceLoader 接口，为将 location 解析为 Resource 对象的策略接口。他提供的 `#getResources(String locationPattern)` 方法，在 AbstractApplicationContext 中实现，在 AbstractApplicationContext 中他持有一个 ResourcePatternResolver 的实例对象。代码如下：
+
+```java
+// AbstractApplicationContext.java
+
+/** ResourcePatternResolver used by this context. */
+private ResourcePatternResolver resourcePatternResolver;
+
+public Resource[] getResources(String locationPattern) throws IOException {
+    return this.resourcePatternResolver.getResources(locationPattern);
+}
+```
+
+- 如果小伙伴对 Spring 的 ResourceLoader 比较熟悉的话，你会发现最终是在 PathMatchingResourcePatternResolver 中实现，该类是 ResourcePatternResolver 接口的实现者。
+
+##### EnvironmentCapable
+
+提供当前系统环境 Environment 组件。提供了一个 `#getEnvironment()` 方法，用于返回 Environment 实例对象。该方法在 AbstractApplicationContext 实现。代码如下：
+
+```java
+// AbstractApplicationContext.java
+public ConfigurableEnvironment getEnvironment() {
+    if (this.environment == null) {
+        this.environment = createEnvironment();
+    }
+    return this.environment;
+}
+```
+
+- 如果持有的 `environment` 实例对象为空，则调用 `#createEnvironment()` 方法，创建一个。代码如下：
+
+  ```java
+  // AbstractApplicationContext.java
+  
+  protected ConfigurableEnvironment createEnvironment() {
+      return new StandardEnvironment();
+  }
+  ```
+
+  - StandardEnvironment 是一个适用于非 WEB 应用的 Environment。
+
+##### Lifecycle
+
+Lifecycle ，一个用于管理声明周期的接口。
+
+在 AbstractApplicationContext 中存在一个 LifecycleProcessor 类型的实例对象 `lifecycleProcessor` ，AbstractApplicationContext 中关于 Lifecycle 接口的实现都是委托给 `lifecycleProcessor` 实现的。代码如下：
+
+```java
+// AbstractApplicationContext.java
+
+/** LifecycleProcessor for managing the lifecycle of beans within this context. */
+@Nullable
+private LifecycleProcessor lifecycleProcessor;
+
+@Override
+public void start() {
+    getLifecycleProcessor().start();
+    publishEvent(new ContextStartedEvent(this));
+}
+
+@Override
+public void stop() {
+    getLifecycleProcessor().stop();
+    publishEvent(new ContextStoppedEvent(this));
+}
+
+@Override
+public boolean isRunning() {
+    return (this.lifecycleProcessor != null && this.lifecycleProcessor.isRunning());
+}
+```
+
+- 在启动、停止的时候会分别发布 ContextStartedEvent 和 ContextStoppedEvent 事件。
+
+##### Closable
+
+Closable 接口用于关闭和释放资源，提供了 `#close()` 方法，以释放对象所持有的资源。在 ApplicationContext 体系中由AbstractApplicationContext 实现，用于关闭 ApplicationContext 销毁所有 Bean ，此外如果注册有 JVM shutdown hook ，同样要将其移除。代码如下：
+
+```java
+// AbstractApplicationContext.java
+
+public void close() {
+    synchronized (this.startupShutdownMonitor) {
+        doClose();
+        // If we registered a JVM shutdown hook, we don't need it anymore now:
+        // We've already explicitly closed the context.
+        if (this.shutdownHook != null) {
+            try {
+                Runtime.getRuntime().removeShutdownHook(this.shutdownHook);
+            } catch (IllegalStateException ex) {
+             // ignore - VM is already shutting down
+            }
+        }
+    }
+}
+```
+
+- 调用 `#doClose()` 方法，发布 ContextClosedEvent 事件，销毁所有 Bean（单例），关闭 BeanFactory 。代码如下：
+
+  ```java
+  // AbstractApplicationContext.java
+  
+  protected void doClose() {
+      // ... 省略部分代码
+      try {
+          // Publish shutdown event.
+          publishEvent(new ContextClosedEvent(this));
+      } catch (Throwable ex) {
+          logger.warn("Exception thrown from ApplicationListener handling ContextClosedEvent", ex);
+      }
+  
+      // ... 省略部分代码
+      destroyBeans();
+      closeBeanFactory();
+      onClose();
+  
+      this.active.set(false);
+  
+  }
+  ```
+
+##### InitializingBean
+
+InitializingBean 为 Bean 提供了初始化方法的方式，它提供的 `#afterPropertiesSet()` 方法，用于执行初始化动作。在 ApplicationContext 体系中，该方法由 AbstractRefreshableConfigApplicationContext 实现，代码如下：
+
+```
+// AbstractRefreshableConfigApplicationContext.java
+public void afterPropertiesSet() {
+    if (!isActive()) {
+        refresh();
+    }
+}
+```
+
+- 执行 `refresh()` 方法，该方法在 AbstractApplicationContext 中执行，执行整个 Spring 容器的初始化过程。**该方法将在下篇文章进行详细分析说明**。
+
+##### BeanNameAware
+
+BeanNameAware ，设置 Bean Name 的接口。接口在 AbstractRefreshableConfigApplicationContext 中实现。
+
+```java
+// AbstractRefreshableConfigApplicationContext.java
+public void setBeanName(String name) {
+    if (!this.setIdCalled) {
+        super.setId(name);
+        setDisplayName("ApplicationContext '" + name + "'");
+    }
+}
+```
+
+#### 总结
+
+这里不得不说 Spring 真的是一个非常优秀的框架，具有良好的结构设计和接口抽象，它的每一个接口职能单一，且都是具体功能到各个模块的高度抽象，且几乎每套接口都提供了一个默认的实现（defaultXXX）。
+
+对于 ApplicationContext 体系而言，他继承 Spring 中众多的核心接口，能够为客户端提供一个相对完整的 Spring 容器，接口 ConfigurableApplicationContext 对 ApplicationContext 接口再次进行扩展，提供了生命周期的管理功能。
+抽象类 ApplicationContext 对整套接口提供了大部分的默认实现，将其中“不易变动”的部分进行了封装，通过“组合”的方式将“容易变动”的功能委托给其他类来实现，同时利用模板方法模式将一些方法的实现开放出去由子类实现，从而实现“**对扩展开放，对修改封闭**”的设计原则。
+
+
+
+### 18. ApplicationContext 的refresh
+
+ConfigurableApplicationContext 接口中定义的 ，作用就是刷新spring上下文内容。具体实现在AbstractApplicationContext。
+
+#### prepareRefresh()
+
+初始化上下文环境，对系统的环境变量或者系统属性进行准备和校验,如环境变量中必须设置某个值才能运行，否则不能运行，这个时候可以在这里加这个校验，重写 initPropertySources 方法就好了
+
+ 该方法主要是做一些准备工作，如：
+
+1. 设置 context 启动时间
+2. 设置 context 的当前状态
+3. 初始化 context environment 中占位符
+4. 对属性进行必要的验证
+
+
+
+finishBeanFactoryInitialization 
+
+### 未分类小结
+
+BeanFactory 和 FactoryBean，其中 BeanFactory 指的是 IOC 容器的编程抽象，比如 ApplicationContext，XmlBeanFactory 等，这些都是 IOC 容器的具体表现，需要使用什么样的容器由客 户决定,但 Spring 为我们提供了丰富的选择。FactoryBean 只是一个可以在 IOC 而容器中被管理的一个 bean,是对各种处理过程和资源使用的抽象,FactoryBean 在需要时产生另一个对象，而不返回 FactoryBean 本身,我们可以把它看成是一个抽象工厂，对它的调用返回的是工厂生产的产品。所有的 FactoryBean 都实现特殊的 org.springframework.beans.factory.FactoryBean 接口，当使用容器中 FactoryBean 的时候，该容器不会返回 FactoryBean 本身,而是返回其生成的对象。Spring 包括了大部 分的通用资源和服务访问抽象的 FactoryBean 的实现，其中包括:对 JNDI 查询的处理，对代理对象的处 理，对事务性代理的处理，对 RMI 代理的处理等，这些我们都可以看成是具体的工厂,看成是 Spring 为 我们建立好的工厂。也就是说 Spring 通过使用抽象工厂模式为我们准备了一系列工厂来生产一些特定 的对象,免除我们手工重复的工作，我们要使用时只需要在 IOC 容器里配置好就能很方便的使用了。
+
+//注意：BeanFactory 是管理容器中 Bean 的工厂，而 FactoryBean 是 //创建创建对象的工厂 Bean，两者之间有区别从factorybean中getBean获取真正的bean对象
+
+
+
+
 
 
 
